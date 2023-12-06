@@ -1,6 +1,6 @@
 function AsideFiles() {
   return (
-    <div className="w-[25%]">
+    <div className="w-[25%] hidden lg:block">
       <p className="font-semibold mt-5 ml-3">Fichiers et liens</p>
       <div className="relative  mt-3 ml-3 m-3">
         <input

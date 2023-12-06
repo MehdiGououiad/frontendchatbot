@@ -24,7 +24,7 @@ function Chat() {
       // Your send logic here
       const conversationId = getConversationIdFromUrl();
 
-      const apiUrl = `http://localhost:8080/api/questions/ask?question=${inputValue}&conversationId=${conversationId}`;
+      const apiUrl = `http://192.168.3.20:8081/api/questions/ask?question=${inputValue}&conversationId=${conversationId}`;
 
       axios
         .post(apiUrl)
@@ -63,7 +63,7 @@ function Chat() {
     const conversationId = getConversationIdFromUrl();
     if (conversationId !== null) {
       // Make the API call with the extracted conversation ID
-      const apiUrl = `http://localhost:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
+      const apiUrl = `http://192.168.3.20:8081/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
 
       axios
         .get(apiUrl)
@@ -75,6 +75,29 @@ function Chat() {
           // Handle any errors here
           console.error("API Error:", error);
         });
+    } else {
+      const apiUrl =
+        "http://192.168.3.20:8081/api/conversations/conversationsByUserId?userId=1";
+
+      axios
+        .get(apiUrl)
+        .then((response) => {
+          // Handle the response here
+          // Handle the response here
+          const conversations = response.data;
+
+          if (conversations.length > 0) {
+            // Get the last conversation from the array
+            const firstConversation = conversations[0];
+
+            // Extract the id from the last conversation
+            const firstConversationId = firstConversation.id;
+
+            // Navigate to the new URL using the extracted id
+            window.location.href = `/${firstConversationId}`;
+          }
+        })
+        .catch((err) => {});
     }
   }
 
@@ -89,7 +112,7 @@ function Chat() {
     getMessages();
   }, []);
   return (
-    <div className="w-[75%] border-r border-gray-300 flex flex-col justify-between h-[620px] ">
+    <div className="lg:w-[75%] lg:border-r border-gray-300 flex flex-col justify-between w-full  lg:h-[90vh] h-[75vh] ">
       <div ref={scrollRef} className="overflow-y-auto flex-grow">
         <div className="flex gap-4 ml-8 mt-8">
           <img src="bot.svg" alt="" />
@@ -116,19 +139,32 @@ function Chat() {
                   }`}
                 >
                   {message.messageType === "Question" ? (
-                    <div></div>
+                    <div className="flex flex-row-reverse my-2">
+                      <img src="photo.svg" alt="" className="mr-5" />
+                      <div
+                        className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line	 ${
+                          message.messageType === "Question"
+                            ? "bg-green-500 text-white mr-3 "
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                    </div>
                   ) : (
-                    <img src="bot.svg" alt="" className="ml-8 mr-4" />
+                    <div className="flex">
+                      <img src="bot.svg" alt="" className="ml-8 mr-4" />
+                      <div
+                        className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line	mr-5 ${
+                          message.messageType === "Question"
+                            ? "bg-green-500 text-white mr-5 "
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                    </div>
                   )}
-                  <div
-                    className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl ${
-                      message.messageType === "Question"
-                        ? "bg-green-500 text-white mr-5 "
-                        : "bg-gray-100"
-                    }`}
-                  >
-                    {message.content}
-                  </div>
                 </div>
               ))}
           </div>
@@ -168,7 +204,7 @@ function Chat() {
         </div>
       )}
 
-      <div className="flex items-center mx-20 mt-3">
+      <div className="flex items-center lg:mx-20 mt-4 mx-2">
         <label className="cursor-pointer" htmlFor="fileInput">
           <img src="joinfile.svg" alt="" className="mr-2" />
         </label>
@@ -184,7 +220,7 @@ function Chat() {
 
         <button
           type="button"
-          className="text-white rounded-full p-2 ml-2"
+          className="text-white rounded-full p-2 lg:ml-2"
           onClick={handleSend}
         >
           <img src="send.svg" alt="" />
