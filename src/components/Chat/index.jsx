@@ -17,14 +17,19 @@ function Chat() {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = (predefined) => {
+    let value = inputValue;
+    if (predefined !== undefined) {
+      value = predefined;
+      setInputValue(predefined);
+    }
     setIsThinking(true); // Start thinking
     setTimeout(() => {
       setIsThinking(false); // Stop thinking after a delay
       // Your send logic here
       const conversationId = getConversationIdFromUrl();
 
-      const apiUrl = `http://192.168.3.20:8081/api/questions/ask?question=${inputValue}&conversationId=${conversationId}`;
+      const apiUrl = `http://192.168.3.20:8081/api/questions/ask?question=${value}&conversationId=${conversationId}`;
 
       axios
         .post(apiUrl)
@@ -121,6 +126,40 @@ function Chat() {
               Bonjour
             </div>
             <br />
+            <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl mt-2">
+              Vous pouvez me poser n’importe quelle question.
+            </div>
+            <br />
+            <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl mt-2">
+              Si vous vous sentez perdu, vous pouvez cliquer sur l’un des
+              boutons ci-dessous.
+            </div>
+          </div>
+        </div>
+        <div className="justify-center items-stretch flex flex-col px-14 max-md:px-5 mt-5">
+          <div className=" flex justify-center gap-3.5 ">
+            <div className=" flex gap-2.5">
+              <button
+                onClick={() => handleSend("C'est quoi Futuris ?")}
+                className="text-white text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-emerald-600 grow px-8 py-2 rounded-xl max-md:px-5 hover:bg-emerald-900"
+              >
+                C'est quoi Futuris ?
+              </button>
+              <button
+                onClick={() =>
+                  handleSend("C'est quoi les portails ressource humaine ?")
+                }
+                className="text-white text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-emerald-600 grow px-6 py-2 rounded-xl max-md:px-5 hover:bg-emerald-900"
+              >
+                C'est quoi les portails ressource humaine ?
+              </button>
+              <button
+                onClick={() => handleSend("Combien on peut donner à Futuris ?")}
+                className="text-white text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-emerald-600 grow px-6 py-2 rounded-xl max-md:px-5 hover:bg-emerald-900"
+              >
+                Combien on peut donner à Futuris ?
+              </button>
+            </div>
           </div>
         </div>
 
@@ -205,10 +244,10 @@ function Chat() {
       )}
 
       <div className="flex items-center lg:mx-20 mt-4 mx-2">
-        <label className="cursor-pointer" htmlFor="fileInput">
+        {/* <label className="cursor-pointer" htmlFor="fileInput">
           <img src="joinfile.svg" alt="" className="mr-2" />
         </label>
-        <input type="file" id="fileInput" className="sr-only" />
+        <input type="file" id="fileInput" className="sr-only" /> */}
         <input
           type="text"
           value={inputValue}

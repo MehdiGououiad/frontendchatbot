@@ -3,9 +3,9 @@ import Header from "../../components/Header";
 import AsideFiles from "../../components/AsideFiles";
 import React, { useState } from "react";
 
-function Home({ isSidebarOpen, setIsSidebarOpen }) {
+function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu }) {
   return (
-    <div className="w-full lg:h-screen ">
+    <div className="w-full lg:h-screen " onClick={() => toggleMenu(null)}>
       <div>
         <Header
           isSidebarOpen={isSidebarOpen}

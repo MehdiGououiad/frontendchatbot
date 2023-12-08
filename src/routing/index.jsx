@@ -5,11 +5,27 @@ import { useState } from "react";
 
 function AppRouter() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const toggleMenu = (id) => {
+    if (openMenuId === id) {
+      setOpenMenuId(null);
+    } else {
+      setOpenMenuId(id);
+    }
+  };
 
   return (
     <Router>
       <Routes>
-        <Route element={<Sidebar isSidebarOpen={isSidebarOpen} />}>
+        <Route
+          element={
+            <Sidebar
+              isSidebarOpen={isSidebarOpen}
+              toggleMenu={toggleMenu}
+              openMenuId={openMenuId}
+            />
+          }
+        >
           <Route
             path="/"
             element={
@@ -23,6 +39,7 @@ function AppRouter() {
             path="/:conversationId"
             element={
               <Home
+                toggleMenu={toggleMenu}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
               />

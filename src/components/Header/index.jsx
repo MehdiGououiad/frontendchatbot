@@ -48,11 +48,11 @@ function Header({ isSidebarOpen, setIsSidebarOpen }) {
       <div className="flex justify-center">
         <div className="lg:flex items-center  lg:border-b border-r border-gray-300 w-[75%] hidden">
           <h1 className="text-black text-xl leading-6 font-bold ml-8 ">
-            BMCI GROUPE BNP PARIBAS
+            Bienvenue dans MyHR, votre chatbot RH
           </h1>
-          <h2 className="text-zinc-600 text-xl leading-6 ml-5">
+          {/* <h2 className="text-zinc-600 text-xl leading-6 ml-5">
             La banque d&apos;un monde qui change
-          </h2>
+          </h2> */}
         </div>
         <div className="flex    lg:w-[25%] lg:justify-end justify-center   mt-2 lg:border-b border-gray-300 pb-2">
           <div className="mr-5">

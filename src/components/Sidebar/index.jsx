@@ -2,7 +2,7 @@ import { Outlet, Link } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-function Sidebar({ isSidebarOpen }) {
+function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -164,61 +164,90 @@ function Sidebar({ isSidebarOpen }) {
               ) : (
                 <div>
                   {conversations.map((conversation, index) => (
-                    <div key={index} className={`w-full px-3`}>
+                    <div
+                      key={index}
+                      className="w-full px-3 flex justify-between items-center mb-5"
+                    >
                       <a
                         href={`/${conversation.id}`}
                         onClick={(e) => {
                           e.preventDefault();
                           handleLinkClick(conversation.id);
                         }}
-                        className={`
-                        ${
+                        className={`${
                           selectedConversationId == conversation.id
                             ? "bg-zinc-300"
                             : ""
-                        }
-                        
-                        inline-flex  items-center gap-2 w-full mb-5 px-2.5 text-sm h-8 transition-all font-medium bg-zinc-100 rounded-md hover:bg-zinc-200 p-5`}
+                        } flex items-center justify-start text-sm h-8 transition-all font-medium bg-zinc-100 rounded-md hover:bg-zinc-200 p-5 flex-grow`}
                       >
                         {/* Conversation Title */}
                         <div className="text-sm truncate">
                           <span className="whitespace-nowrap">
                             <span>{conversation.title}</span>
-                            {/* Replace with the appropriate property */}
                           </span>
                         </div>
-                        {/* Modify Name Icon */}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-5 h-5 text-blue-500 cursor-pointer"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 19l9 2-2-9-9-2-2 9 9 2zM9 9a3 3 0 100-6 3 3 0 000 6z"
-                          />
-                        </svg>{" "}
-                        {/* Delete Conversation Icon */}
-                        <svg
-                          onClick={() => deleteConversation(conversation.id)}
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-5 h-5 text-red-500 cursor-pointer"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
                       </a>
+
+                      {/* Contextual Menu Icon */}
+                      <div className="relative ml-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleMenu(conversation.id)}
+                          className="inline-flex w-8 h-8 justify-center items-center text-gray-500 hover:text-gray-700"
+                        >
+                          <span className="sr-only">Open options</span>
+                          {/* Three Dots Icon */}
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M6 10h.01M12 10h.01M18 10h.01"
+                            />
+                          </svg>
+                        </button>
+
+                        {/* Contextual Menu */}
+                        {openMenuId === conversation.id && (
+                          <div
+                            className="origin-top-right absolute right-0 left-4 mt-2 w-56 rounded-md shadow-lg bg-white z-20 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            role="menu"
+                            aria-orientation="vertical"
+                            tabIndex="-1"
+                          >
+                            <div className="py-1" role="none">
+                              {/* Menu Items */}
+                              <a
+                                href="#"
+                                className="text-gray-700 flex  gap-2 items-center px-4 py-2 text-sm"
+                                role="menuitem"
+                                tabIndex="-1"
+                              >
+                                <img src="pen.svg" className="" alt="" />
+                                <p className="mb-[3px] font-bold">Modifier</p>
+                              </a>
+                              <a
+                                href="#"
+                                onClick={() =>
+                                  deleteConversation(conversation.id)
+                                }
+                                className="text-gray-700  px-4 py-2 text-sm flex gap-2 items-center"
+                                role="menuitem"
+                                tabIndex="-1"
+                              >
+                                <img src="trash.png" alt="" />
+                                <p className="mb-[3px] font-bold">Supprimer</p>
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -226,10 +255,12 @@ function Sidebar({ isSidebarOpen }) {
             </div>
           </div>
         </div>
+        <div className="h-full" onClick={() => toggleMenu(null)}></div>
+
         {/* Sidebar Footer */}
-        <div className="p-4 mb-6">
+        {/* <div className="p-4 mb-6">
           <img src="settings.svg" alt="" className="mx-auto" />
-        </div>
+        </div> */}
       </div>
 
       <Outlet />
