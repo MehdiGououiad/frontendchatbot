@@ -1,6 +1,6 @@
-function AsideFiles() {
+function AsideFiles({ links }) {
   return (
-    <div className="w-[25%] hidden lg:block">
+    <div className="w-[20%] hidden lg:block">
       <p className="font-semibold mt-5 ml-3">Fichiers et liens</p>
       <div className="relative  mt-3 ml-3 m-3">
         <input
@@ -8,6 +8,9 @@ function AsideFiles() {
           placeholder="Recherche"
           className="py-2 pr-10 pl-12 rounded-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-500  w-full"
         />
+        <p className="text-sm text-zinc-600 font-medium  text-center mt-3">
+          Vous retrouverez ici les liens et fichiers envoyés par le chatbot
+        </p>
 
         <svg
           width="21"
@@ -22,6 +25,48 @@ function AsideFiles() {
             fill="#00B86F"
           />
         </svg>
+      </div>
+      <div className="flex">
+        <div className="items-stretch flex grow flex-col my-auto">
+          <nav>
+            {links.map((link, index) => (
+              <a
+                href={link.value}
+                target="_blank"
+                rel="noreferrer"
+                className="flex justify-between mx-2 hover:bg-gray-100 mb-2 p-2 rounded-xl animate-slide-in-right" // Using the custom animation class
+                key={index}
+              >
+                <div className="flex">
+                  <figure className="justify-center items-center bg-purple-50 flex aspect-square flex-col w-12 h-12 px-3 rounded-xl">
+                    <img
+                      loading="lazy"
+                      src="https://cdn.builder.io/api/v1/image/assets/TEMP/826fa3601de548c8493d57127b75999bbd991412ff809e24092392e22c4158c2?apiKey=81226a1a8f9f4f2688e9c62cb118fa86&"
+                      className="aspect-square object-contain object-center w-full overflow-hidden"
+                      alt="Descriptive alt text"
+                    />
+                  </figure>
+                  <div className="ml-3">
+                    <h1
+                      href={link.value}
+                      className="text-black text-sm font-semibold leading-5 "
+                    >
+                      {link.text}
+                    </h1>
+                    <p className="text-gray-300">{link.type}</p>
+                  </div>
+                </div>
+
+                <img
+                  loading="lazy"
+                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/0ab088f9a02c5fc39a6983d298bce7b589988874a6ed1e80ee93c1bdee27e0b9?apiKey=81226a1a8f9f4f2688e9c62cb118fa86&"
+                  className="aspect-square object-contain object-center w-6 overflow-hidden self-center shrink-0 max-w-full my-auto"
+                  alt="Image 2"
+                />
+              </a>
+            ))}
+          </nav>
+        </div>
       </div>
     </div>
   );

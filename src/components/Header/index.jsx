@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function Header({ isSidebarOpen, setIsSidebarOpen }) {
+function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark }) {
   return (
     <div className="flex justify-between md:block">
       {/* Toggle Button */}
@@ -46,15 +46,16 @@ function Header({ isSidebarOpen, setIsSidebarOpen }) {
         }
       </button>
       <div className="flex justify-center">
-        <div className="lg:flex items-center  lg:border-b border-r border-gray-300 w-[75%] hidden">
+        <div className="lg:flex items-center justify-between  lg:border-b border-r border-gray-300 w-[80%] hidden">
           <h1 className="text-black text-xl leading-6 font-bold ml-8 ">
             Bienvenue dans MyHR, votre chatbot RH
           </h1>
+          {/* <img className="mr-16" src="dark.svg" alt="" onClick={toggleDark} /> */}
           {/* <h2 className="text-zinc-600 text-xl leading-6 ml-5">
             La banque d&apos;un monde qui change
           </h2> */}
         </div>
-        <div className="flex    lg:w-[25%] lg:justify-end justify-center   mt-2 lg:border-b border-gray-300 pb-2">
+        <div className="flex    lg:w-[20%] lg:justify-end justify-center   mt-2 lg:border-b border-gray-300 pb-2">
           <div className="mr-5">
             <h2 className="font-bold">Anouar Alaoui</h2>
             <h2 className="text-zinc-600 leading-6">Chargé Clientèle</h2>
