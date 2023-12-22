@@ -62,7 +62,7 @@ function Chat({ links, setLinks }) {
     // Your send logic here
     const conversationId = getConversationIdFromUrl();
 
-    const apiUrl = `http://localhost:8081/api/questions/ask?question=${value}&conversationId=${conversationId}`;
+    const apiUrl = `http://localhost:8080/api/questions/ask?question=${value}&conversationId=${conversationId}`;
     try {
       // Assuming apiUrl is defined somewhere in your code
       const response = await axios
@@ -115,7 +115,7 @@ function Chat({ links, setLinks }) {
     const conversationId = getConversationIdFromUrl();
     if (conversationId !== null) {
       // Make the API call with the extracted conversation ID
-      const apiUrl = `http://localhost:8081/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
+      const apiUrl = `http://localhost:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
 
       axios
         .get(apiUrl)
@@ -130,7 +130,7 @@ function Chat({ links, setLinks }) {
         });
     } else {
       const apiUrl =
-        "http://localhost:8081/api/conversations/conversationsByUserId?userId=1";
+        "http://localhost:8080/api/conversations/conversationsByUserId?userId=1";
 
       axios
         .get(apiUrl)

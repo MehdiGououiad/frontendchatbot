@@ -27,7 +27,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
   const handleSubmit = async (id) => {
     try {
       const response = await axios.put(
-        `http://localhost:8081/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
+        `http://localhost:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
       );
       // Update conversation title on success
       setIsEditing(false);
@@ -42,7 +42,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
 
   function handleNewConversation() {
     // This is where we'll add the code to create a new conversation
-    const apiUrl = "http://localhost:8081/api/conversations/create?user_id=1";
+    const apiUrl = "http://localhost:8080/api/conversations/create?user_id=1";
 
     // Make the POST request using Axios
     axios
@@ -82,7 +82,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
   function deleteConversation(id) {
     // This is where we'll add the code to create a new conversation
     const apiUrl =
-      "http://localhost:8081/api/conversations/deleteByConversationId?conversationId=" +
+      "http://localhost:8080/api/conversations/deleteByConversationId?conversationId=" +
       id +
       "&userId=1";
     axios
@@ -128,7 +128,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
   }
   useEffect(() => {
     const apiUrl =
-      "http://localhost:8081/api/conversations/conversationsByUserId?userId=1";
+      "http://localhost:8080/api/conversations/conversationsByUserId?userId=1";
 
     axios
       .get(apiUrl)

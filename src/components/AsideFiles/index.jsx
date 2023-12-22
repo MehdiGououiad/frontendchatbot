@@ -1,4 +1,25 @@
+import React, { useState } from "react";
 function AsideFiles({ links }) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Event handler for search input
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Enhanced filtering logic
+  const filteredLinks = links.filter((link) => {
+    // Convert search term to lowercase for case-insensitive comparison
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+    // Check multiple fields for the search term
+    return (
+      link.value.toLowerCase().includes(lowerCaseSearchTerm) ||
+      link.text.toLowerCase().includes(lowerCaseSearchTerm) ||
+      (link.type && link.type.toLowerCase().includes(lowerCaseSearchTerm)) // Checking type only if it exists
+    );
+  });
+
   return (
     <div className="w-[20%] hidden lg:block">
       <p className="font-semibold mt-5 ml-3">Fichiers et liens</p>
@@ -7,6 +28,8 @@ function AsideFiles({ links }) {
           type="text"
           placeholder="Recherche"
           className="py-2 pr-10 pl-12 rounded-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-500  w-full"
+          value={searchTerm}
+          onChange={handleSearchChange}
         />
         <p className="text-sm text-zinc-600 font-medium  text-center mt-3">
           Vous retrouverez ici les liens et fichiers envoyés par le chatbot
@@ -29,7 +52,7 @@ function AsideFiles({ links }) {
       <div className="flex">
         <div className="items-stretch flex grow flex-col my-auto">
           <nav>
-            {links.map((link, index) => (
+            {filteredLinks.map((link, index) => (
               <a
                 href={link.value}
                 target="_blank"
