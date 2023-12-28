@@ -110,6 +110,12 @@ function Chat({ links, setLinks }) {
       return null;
     }
   }
+  function handleResponseSelection(content) {
+    const conversationId = getConversationIdFromUrl();
+    console.log(content);
+
+    
+  }
 
   function getMessages() {
     const conversationId = getConversationIdFromUrl();
@@ -219,62 +225,79 @@ function Chat({ links, setLinks }) {
 
         {chat && chat.length > 0 ? (
           <div className="flex flex-col-reverse">
-            {chat
-              .slice()
-              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-              .map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex items-end my-1 ${
-                    message.messageType === "Question"
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
-                >
-                  {message.messageType === "Question" ? (
-                    <div className="flex flex-row-reverse my-2">
-                      <img src="photo.svg" alt="" className="mr-5" />
-                      <div
-                        className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line	 ${
-                          message.messageType === "Question"
-                            ? "bg-green-500 text-white mr-3 "
-                            : "bg-gray-100"
-                        }`}
-                      >
-                        {message.content}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex mr-10">
-                      <img src="bot.svg" alt="" className="ml-8 mr-4" />
-                      <div
-                        className={` inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line	mr-5 ${
-                          message.messageType === "Question"
-                            ? "bg-green-500 text-white mr-5"
-                            : "bg-gray-100"
-                        }`}
-                      >
-                        {message.id == lastmessageId ? (
-                          <TypingEffect
-                            message={message.content}
-                            speed={50}
-                            onContentChange={handleContentChange}
-                          />
-                        ) : (
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: message.content,
-                            }}
-                          />
-                        )}
-                      </div>
+           {chat
+  .slice()
+  .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+  .map((message) => (
+    <div
+      key={message.id}
+      className={`flex items-end my-1 ${
+        message.messageType === "Question"
+          ? "justify-end"
+          : "justify-start"
+      }`}
+    >
+      {message.messageType === "Responsemultiple" ? (
+  <div className="flex flex-col items-center justify-center">
+    <h2 className="text-lg font-semibold mb-4">J'ai peur de ne pas bien te comprendre ? Voici quelques suggestions</h2>
+    <div className="flex ml-24 mr-20">
+    {message.content.split(';').slice(0, 3).map((content, index) => (
+      <div key={index} className="flex justify-start">
+        <div onClick={()=>handleResponseSelection(content)} className="inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line bg-gray-100 mr-5 border hover:border-green-500">
+          {content}
+        </div>
+      </div>
+    ))}
+    </div>
+  </div>
+)
 
-                      {/* <img src="like.svg" className="mr-2" alt="" />
-                      <img src="dislike.svg" alt="" /> */}
-                    </div>
-                  )}
-                </div>
-              ))}
+ : message.messageType === "Question" ? (
+        // Existing code for handling Question message type
+        <div className="flex flex-row-reverse my-2">
+          <img src="photo.svg" alt="" className="mr-5" />
+          <div
+            className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line ${
+              message.messageType === "Question"
+                ? "bg-green-500 text-white mr-3"
+                : "bg-gray-100"
+            }`}
+          >
+            {message.content}
+          </div>
+        </div>
+      ) : (
+        // Existing code for handling other message types
+        <div className="flex mr-10">
+          <img src="bot.svg" alt="" className="ml-8 mr-4" />
+          <div
+            className={`inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line mr-5 ${
+              message.messageType === "Question"
+                ? "bg-green-500 text-white mr-5"
+                : "bg-gray-100"
+            }`}
+          >
+            {message.id == lastmessageId ? (
+              <TypingEffect
+                message={message.content}
+                speed={50}
+                onContentChange={handleContentChange}
+              />
+            ) : (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: message.content,
+                }}
+              />
+            )}
+          </div>
+          {/* <img src="like.svg" className="mr-2" alt="" />
+          <img src="dislike.svg" alt="" /> */}
+        </div>
+      )}
+    </div>
+  ))}
+
           </div>
         ) : (
           <div></div>
