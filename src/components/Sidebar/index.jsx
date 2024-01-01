@@ -260,7 +260,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
                                     {/* <span className="sr-only">Open options</span> */}
                                     {/* Three Dots Icon */}
                                     <svg
-                                      className="w-6 h-6 mt-3"
+                                      className="w-6 h-6 mt-3 ml-5"
                                       fill="none"
                                       stroke="currentColor"
                                       viewBox="0 0 24 24"
@@ -269,7 +269,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
                                       <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        strokeWidth="2"
+                                        strokeWidth="4"
                                         d="M6 10h.01M12 10h.01M18 10h.01"
                                       />
                                     </svg>
