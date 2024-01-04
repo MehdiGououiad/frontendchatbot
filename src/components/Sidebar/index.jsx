@@ -19,6 +19,131 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
     setNewTitle(conversations.find((c) => c.id == id).title);
     toggleMenu(null);
   };
+// Separate conversations into different groups based on date
+const todayConversations = conversations.filter((conversation) => {
+  const conversationDate = new Date(conversation.timestamp); // Assuming 'timestamp' is the property containing the conversation date
+  const today = new Date();
+  return (
+    conversationDate.getDate() === today.getDate() &&
+    conversationDate.getMonth() === today.getMonth() &&
+    conversationDate.getFullYear() === today.getFullYear()
+  );
+});
+
+const yesterdayConversations = conversations.filter((conversation) => {
+  const conversationDate = new Date(conversation.timestamp);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return (
+    conversationDate.getDate() === yesterday.getDate() &&
+    conversationDate.getMonth() === yesterday.getMonth() &&
+    conversationDate.getFullYear() === yesterday.getFullYear()
+  );
+});
+
+const beforeYesterdayConversations = conversations.filter((conversation) => {
+  const conversationDate = new Date(conversation.timestamp);
+  const today = new Date();
+  const beforeYesterday = new Date(today);
+  beforeYesterday.setDate(today.getDate() - 2); // Set to two days back
+  return conversationDate < beforeYesterday;
+});
+
+
+// Render the conversation items
+const renderConversations = (conversations) => {
+  return (
+    <div>
+      {conversations
+        .sort((a, b) => b.id - a.id)
+        .map((conversation, index) => {
+          return (
+            <div key={index} className={`mx-2 rounded-md px-3 flex justify-between items-center mb-5 cursor-pointer   ${selectedConversationId == conversation.id ? "bg-zinc-300 h-8 p-5" : "bg-zinc-100"}`}>
+              {isEditing && isEditedId == conversation.id ? (
+                <div className="flex">
+                  <input
+                    className="border pl-2 rounded-md border-zinc-300 focus:outline-none focus:border-zinc-500"
+                    type="text"
+                    value={newTitle}
+                    onChange={handleTitleChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSubmit(conversation.id);
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <div href={`/${conversation.id}`} onClick={(e) => {
+                  e.preventDefault();
+                  handleLinkClick(conversation.id);
+                }} className={`${selectedConversationId == conversation.id ? "" : ""} flex items-center justify-between text-sm h-8 transition-all font-medium rounded-md p-5 w-full`}>
+                  <div>
+                    <img src="chat-icon.svg" className="w-5" alt="" />
+                  </div>
+                  {/* Conversation Title */}
+                  <div className="text-sm truncate ">
+                    {conversation.title}
+                  </div>
+                  <div className="">
+                    {isEditing ? (
+                      ""
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent click event from bubbling up to the parent div
+                          toggleMenu(conversation.id);
+                        }}
+                        className="w-8 h-8 text-gray-500 hover:text-gray-700"
+                      >
+                        {/* Three Dots Icon */}
+                        <svg
+                          className="w-6 h-6 mt-3 ml-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="4"
+                            d="M6 10h.01M12 10h.01M18 10h.01"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Contextual Menu Icon */}
+              <div className=" relative inline-block">
+                {/* Contextual Menu */}
+                {openMenuId === conversation.id && (
+                  <div className="absolute -right-1  mt-5 w-56 rounded-md shadow-lg bg-white z-20 ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: "100%" }} role="menu" aria-orientation="vertical" tabIndex="-1">
+                    <div className="py-1" role="none">
+                      {/* Menu Items */}
+                      <a href="#" className="text-gray-700 flex  gap-2 items-center px-4 py-2 text-sm" role="menuitem" tabIndex="-1" onClick={() => handleEditClick(conversation.id)}>
+                        <img src="pen.svg" className="" alt="" />
+                        <p className="mb-[3px] font-bold">Modifier</p>
+                      </a>
+                      <a href="#" onClick={() => deleteConversation(conversation.id)} className="text-gray-700 px-4 py-2 text-sm flex gap-2 items-center" role="menuitem" tabIndex="-1">
+                        <img src="trash.png" alt="" />
+                        <p className="mb-[3px] font-bold">Supprimer</p>
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+    </div>
+  );
+};
+
 
   const handleTitleChange = (e) => {
     setNewTitle(e.target.value);
@@ -185,9 +310,7 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
             </div>
             {/* Chat Sections */}
             <div>
-              <div className="px-2 pb-2  font-medium text-emerald-700  mt-6 mb-1">
-                Historiques
-              </div>
+             
               {loading ? (
                 <div>Loading...</div>
               ) : (
@@ -195,138 +318,29 @@ function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
                   className=""
                   style={{ height: "460px", overflowY: "auto" }}
                 >
-                  {conversations
-                    .sort((a, b) => b.id - a.id) // Sorting in descending order by conversation ID
-                    .map((conversation, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className={` mx-2 rounded-md px-3 flex justify-between items-center mb-5 cursor-pointer	  ${
-                            selectedConversationId == conversation.id
-                              ? "bg-zinc-300 h-8 p-5"
-                              : "bg-zinc-100"
-                          }`}
-                        >
-                          {isEditing && isEditedId == conversation.id ? (
-                            <div className="flex">
-                              <input
-                                className=" border pl-2 rounded-md  border-zinc-300 focus:outline-none   focus:border-zinc-500 "
-                                type="text"
-                                value={newTitle}
-                                onChange={handleTitleChange}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter") {
-                                    handleSubmit(conversation.id);
-                                  }
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              href={`/${conversation.id}`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleLinkClick(conversation.id);
-                              }}
-                              className={`${
-                                selectedConversationId == conversation.id
-                                  ? ""
-                                  : ""
-                              } flex items-center justify-between text-sm h-8 transition-all font-medium  rounded-md  p-5 w-full`}
-                            >
-                              <div>
-                                <img
-                                  src="chat-icon.svg"
-                                  className="w-5 "
-                                  alt=""
-                                />
-                              </div>
-                              {/* Conversation Title */}
-                              <div className="text-sm truncate ">
-                                {conversation.title}
-                              </div>
-                              <div className="">
-                                {isEditing ? (
-                                  ""
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation(); // Prevent click event from bubbling up to the parent div
-                                      toggleMenu(conversation.id);
-                                    }}
-                                    className=" w-8 h-8  text-gray-500 hover:text-gray-700"
-                                  >
-                                    {/* <span className="sr-only">Open options</span> */}
-                                    {/* Three Dots Icon */}
-                                    <svg
-                                      className="w-6 h-6 mt-3 ml-5"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="4"
-                                        d="M6 10h.01M12 10h.01M18 10h.01"
-                                      />
-                                    </svg>
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          )}
+                   {/* Today Conversations */}
+    <div>
+      <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
+        Aujourd'hui
+      </div>
+      {renderConversations(todayConversations)}
+    </div>
 
-                          {/* Contextual Menu Icon */}
-                          <div className=" relative inline-block">
-                            {/* Contextual Menu */}
-                            {openMenuId === conversation.id && (
-                              <div
-                                className="absolute -right-1  mt-5 w-56 rounded-md shadow-lg bg-white z-20 ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                style={{ top: "100%" }} // Adjust the top property as needed
-                                role="menu"
-                                aria-orientation="vertical"
-                                tabIndex="-1"
-                              >
-                                <div className="py-1" role="none">
-                                  {/* Menu Items */}
-                                  <a
-                                    href="#"
-                                    className="text-gray-700 flex  gap-2 items-center px-4 py-2 text-sm"
-                                    role="menuitem"
-                                    tabIndex="-1"
-                                    onClick={() =>
-                                      handleEditClick(conversation.id)
-                                    }
-                                  >
-                                    <img src="pen.svg" className="" alt="" />
-                                    <p className="mb-[3px] font-bold">
-                                      Modifier
-                                    </p>
-                                  </a>
-                                  <a
-                                    href="#"
-                                    onClick={() =>
-                                      deleteConversation(conversation.id)
-                                    }
-                                    className="text-gray-700  px-4 py-2 text-sm flex gap-2 items-center"
-                                    role="menuitem"
-                                    tabIndex="-1"
-                                  >
-                                    <img src="trash.png" alt="" />
-                                    <p className="mb-[3px] font-bold">
-                                      Supprimer
-                                    </p>
-                                  </a>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+    {/* Yesterday Conversations */}
+    <div>
+      <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
+        Hier
+      </div>
+      {renderConversations(yesterdayConversations)}
+    </div>
+
+    {/* Historique Conversations */}
+    <div>
+      <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
+        Historique
+      </div>
+      {renderConversations(beforeYesterdayConversations)}
+    </div>
                 </div>
               )}
             </div>
