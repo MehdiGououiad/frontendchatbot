@@ -30,6 +30,8 @@ function AppRouter() {
             path="/"
             element={
               <Home
+              toggleMenu={toggleMenu}
+
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
               />

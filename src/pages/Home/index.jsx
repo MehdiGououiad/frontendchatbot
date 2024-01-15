@@ -9,6 +9,17 @@ function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu }) {
   function toggleDark() {
     document.documentElement.classList.toggle("dark");
   }
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleClick = () => {
+    if(isChecked){
+      setIsChecked(false)
+    }
+    else{
+      setIsChecked(true)
+    }
+
+  };
   return (
     <div
       className="w-full lg:h-screen dark:bg-black "
@@ -16,12 +27,14 @@ function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu }) {
     >
       <div>
         <Header
+        isChecked={isChecked}
+        handleClick={handleClick}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
         />
       </div>
       <div className="flex" onClick={() => setIsSidebarOpen(false)}>
-        <Chat links={links} setLinks={setLinks} />
+        <Chat links={links} setLinks={setLinks}  isChecked={isChecked} />
         <AsideFiles links={links} />
       </div>
     </div>

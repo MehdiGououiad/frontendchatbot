@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import TypingEffect from "./TypingEffect";
-function Chat({ links, setLinks }) {
+function Chat({ links, setLinks,isChecked }) {
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef(null);
@@ -62,7 +62,9 @@ function Chat({ links, setLinks }) {
     // Your send logic here
     const conversationId = getConversationIdFromUrl();
 
-    const apiUrl = `http://localhost:8080/api/questions/ask?question=${value}&conversationId=${conversationId}`;
+    if(isChecked){
+      
+    const apiUrl = `http://localhost:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=2`;
     try {
       // Assuming apiUrl is defined somewhere in your code
       const response = await axios
@@ -92,7 +94,40 @@ function Chat({ links, setLinks }) {
       // Set isThinking to false once the call is complete or if an error occurs
       setIsThinking(false);
     }
+    }
+    else{
 
+    const apiUrl = `http://localhost:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=1`;
+    try {
+      // Assuming apiUrl is defined somewhere in your code
+      const response = await axios
+        .post(apiUrl)
+        .then((response) => {
+          // setLastmessageId(response.data.id);
+          console.log(response.data);
+          setLastmessageId(response.data);
+          // Handle the API response here if needed
+          getMessages();
+          setInputValue("");
+        })
+        .catch((error) => {
+          // Handle any errors here
+          console.error("API Error:", error);
+        });
+
+      // Handle the API response here if needed
+
+      // Assuming getMessages() and setInputValue() are defined and need to be called after the response
+      getMessages();
+      setInputValue("");
+    } catch (error) {
+      // Handle any errors here
+      console.error("API Error:", error);
+    } finally {
+      // Set isThinking to false once the call is complete or if an error occurs
+      setIsThinking(false);
+    }
+  }
     // Make the API call with the input value
   };
   function getConversationIdFromUrl() {
@@ -192,6 +227,7 @@ function Chat({ links, setLinks }) {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
+      
   }, [chat]); // This effect runs when content changes
 
   useEffect(() => {
@@ -286,11 +322,11 @@ function Chat({ links, setLinks }) {
                 onContentChange={handleContentChange}
               />
             ) : (
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: message.content,
-                }}
-              />
+              <TypingEffect
+              message={message.content}
+              speed={0}
+              onContentChange={handleContentChange}
+            />
             )}
           </div>
           {/* <img src="like.svg" className="mr-2" alt="" />
