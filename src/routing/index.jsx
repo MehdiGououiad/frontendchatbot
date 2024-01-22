@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
 import Sidebar from "../components/Sidebar";
 import { useState } from "react";
+import Login from "../pages/Login";
 
 function AppRouter() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,6 +14,8 @@ function AppRouter() {
       setOpenMenuId(id);
     }
   };
+  const [isEditing, setIsEditing] = useState(false);
+
 
   return (
     <Router>
@@ -22,6 +25,9 @@ function AppRouter() {
             <Sidebar
               isSidebarOpen={isSidebarOpen}
               toggleMenu={toggleMenu}
+              setIsEditing={setIsEditing}
+              isEditing={isEditing}
+
               openMenuId={openMenuId}
             />
           }
@@ -31,7 +37,8 @@ function AppRouter() {
             element={
               <Home
               toggleMenu={toggleMenu}
-
+              setIsEditing={setIsEditing}
+              isEditing={isEditing}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
               />
@@ -42,12 +49,22 @@ function AppRouter() {
             element={
               <Home
                 toggleMenu={toggleMenu}
+                setIsEditing={setIsEditing}
+                isEditing={isEditing}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
               />
             }
           />
-        </Route>
+                  </Route>
+
+            <Route
+            path="/login"
+            element={
+              <Login />
+            }
+          />
+          
       </Routes>
     </Router>
   );

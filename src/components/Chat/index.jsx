@@ -5,6 +5,7 @@ function Chat({ links, setLinks,isChecked }) {
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef(null);
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
   const [chat, setChat] = useState([]);
   const [lastmessageId, setLastmessageId] = useState(0);
@@ -18,14 +19,31 @@ function Chat({ links, setLinks,isChecked }) {
     }
   };
   function extractHref(htmlContent) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, "text/html");
-    return Array.from(doc.querySelectorAll("a")).map((link) => ({
-      href: link.getAttribute("href"),
-      text: link.textContent,
-    }));
+    const urlRegex = /http[s]?:\/\/[^\s]+/g;
+    const matches = htmlContent.match(urlRegex);
+  
+    if (!matches) {
+      return [];
+    }
+  
+    return matches.map(url => {
+      // Remove the trailing period if present
+      if (url.endsWith('.')) {
+        url = url.slice(0, -1);
+      }
+    
+      // Check if the URL matches the specific case
+      let text = url === "https://prohras9.rb.echonet/hra-space/portal" ? "OpenHR" : "Lien";
+    
+      return {
+        href: url,
+        text: text // The text is now conditionally set
+      };
+    });
+    
   }
-
+  
+  
   function processMessages(messages) {
     const seenLinks = new Set();
     const extractedLinks = [];
@@ -52,6 +70,7 @@ function Chat({ links, setLinks,isChecked }) {
   }
 
   const handleSend = async (predefined) => {
+    setShowSuggestions(false);
     let value = inputValue;
     if (predefined !== undefined) {
       value = predefined;
@@ -64,7 +83,7 @@ function Chat({ links, setLinks,isChecked }) {
 
     if(isChecked){
       
-    const apiUrl = `http://localhost:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=2`;
+    const apiUrl = `http://192.168.3.20:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=2`;
     try {
       // Assuming apiUrl is defined somewhere in your code
       const response = await axios
@@ -97,7 +116,7 @@ function Chat({ links, setLinks,isChecked }) {
     }
     else{
 
-    const apiUrl = `http://localhost:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=1`;
+    const apiUrl = `http://192.168.3.20:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=1`;
     try {
       // Assuming apiUrl is defined somewhere in your code
       const response = await axios
@@ -156,7 +175,7 @@ function Chat({ links, setLinks,isChecked }) {
     const conversationId = getConversationIdFromUrl();
     if (conversationId !== null) {
       // Make the API call with the extracted conversation ID
-      const apiUrl = `http://localhost:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
+      const apiUrl = `http://192.168.3.20:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
 
       axios
         .get(apiUrl)
@@ -171,7 +190,7 @@ function Chat({ links, setLinks,isChecked }) {
         });
     } else {
       const apiUrl =
-        "http://localhost:8080/api/conversations/conversationsByUserId?userId=1";
+        "http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId=1";
 
       axios
         .get(apiUrl)
@@ -182,7 +201,7 @@ function Chat({ links, setLinks,isChecked }) {
 
           if (conversations.length > 0) {
             // Get the last conversation from the array
-            const firstConversation = conversations[0];
+            const firstConversation = conversations[conversations.length - 1];
 
             // Extract the id from the last conversation
             const firstConversationId = firstConversation.id;
@@ -214,6 +233,39 @@ function Chat({ links, setLinks,isChecked }) {
       setShowScrollButton(distanceFromBottom > scrollThreshold);
     }
   };
+  const categorizeMessages = (messages) => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+  
+    const formatDate = (date) => date.toISOString().split('T')[0];
+  
+    const todayStr = formatDate(today);
+    const yesterdayStr = formatDate(yesterday);
+  
+    const categorized = {
+      'Aujourd\'hui': [],
+      Hier : [],
+      Historique: []
+    };
+  
+    // Sort all messages by timestamp in descending order
+    const sortedMessages = messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
+    sortedMessages.forEach(message => {
+      const messageDateStr = formatDate(new Date(message.timestamp));
+      if (messageDateStr === todayStr) {
+        categorized["Aujourd'hui"].push(message);
+      } else if (messageDateStr === yesterdayStr) {
+        categorized.Hier.push(message);
+      } else {
+        categorized.Historique.push(message);
+      }
+    });
+  
+    return categorized;
+  };
+  
 
   // Function to scroll to the bottom
   const scrollToBottom = () => {
@@ -221,6 +273,7 @@ function Chat({ links, setLinks,isChecked }) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   };
+  const categorizedChat = chat.length!=0 ? categorizeMessages(chat):[];
 
   useEffect(() => {
     // Scroll to the bottom of the element
@@ -258,83 +311,72 @@ function Chat({ links, setLinks,isChecked }) {
             </div>
           </div>
         </div>
-
+ 
         {chat && chat.length > 0 ? (
           <div className="flex flex-col-reverse">
-           {chat
-  .slice()
-  .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-  .map((message) => (
-    <div
-      key={message.id}
-      className={`flex items-end my-1 ${
-        message.messageType === "Question"
-          ? "justify-end"
-          : "justify-start"
-      }`}
-    >
-      {message.messageType === "Responsemultiple" ? (
-  <div className="flex flex-col items-center justify-center">
-  <h2 className="text-lg font-semibold mb-4">J'ai peur de ne pas bien te comprendre ? Voici quelques suggestions</h2>
-  <div className="flex mx-20 gap-5">
-    {message.content.split(';').slice(0, 3).map((content, index) => (
-      <div key={index} className="flex-1" style={{ flexBasis: 0 }}>
-        <div onClick={()=>handleResponseSelection(content)} className="inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line bg-gray-100 border hover:border-green-500  h-full">
-          {content}
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
-
-
-)
-
- : message.messageType === "Question" ? (
-        // Existing code for handling Question message type
-        <div className="flex flex-row-reverse my-2">
-          <img src="photo.svg" alt="" className="mr-5" />
-          <div
-            className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line ${
-              message.messageType === "Question"
-                ? "bg-green-500 text-white mr-3"
-                : "bg-gray-100"
-            }`}
-          >
-            {message.content}
+           {Object.entries(categorizedChat).map(([category, messages]) => (
+        messages.length > 0 && (
+          <div key={category}>
+            <h2 className="text-center">{category}</h2>
+            {messages
+              .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+              .map(message => (
+                <div
+                  key={message.id}
+                  className={`flex items-end my-1 ${
+                    message.messageType === "Question"
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
+                >
+                  {message.messageType === "Responsemultiple" ? (
+                    <div className="flex flex-col items-center justify-center">
+                      <h2 className="text-lg font-semibold mb-4">
+                        J'ai peur de ne pas bien te comprendre ? Voici quelques suggestions
+                      </h2>
+                      <div className="flex mx-20 gap-5">
+                        {message.content.split(';').slice(0, 3).map((content, index) => (
+                          <div key={index} className="flex-1" style={{ flexBasis: 0 }}>
+                            <div onClick={() => handleResponseSelection(content)} className="inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line bg-gray-100 border hover:border-green-500  h-full">
+                              {content}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : message.messageType === "Question" ? (
+                    <div className="flex flex-row-reverse my-2">
+                      <img src="photo.svg" alt="" className="mr-5" />
+                      <div
+                        className={`text-black inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line ${
+                          message.messageType === "Question"
+                            ? "bg-green-500 text-white mr-3"
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex mr-10">
+                      <img src="bot.svg" alt="" className="ml-8 mr-4" />
+                      <div
+                        className={`inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line mr-5 ${
+                          message.messageType === "Question"
+                            ? "bg-green-500 text-white mr-5"
+                            : "bg-gray-100"
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            }
           </div>
-        </div>
-      ) : (
-        // Existing code for handling other message types
-        <div className="flex mr-10">
-          <img src="bot.svg" alt="" className="ml-8 mr-4" />
-          <div
-            className={`inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line mr-5 ${
-              message.messageType === "Question"
-                ? "bg-green-500 text-white mr-5"
-                : "bg-gray-100"
-            }`}
-          >
-            {message.id == lastmessageId ? (
-              <TypingEffect
-                message={message.content}
-                speed={50}
-                onContentChange={handleContentChange}
-              />
-            ) : (
-              <TypingEffect
-              message={message.content}
-              speed={0}
-              onContentChange={handleContentChange}
-            />
-            )}
-          </div>
-          {/* <img src="like.svg" className="mr-2" alt="" />
-          <img src="dislike.svg" alt="" /> */}
-        </div>
-      )}
-    </div>
-  ))}
+        )
+      ))}
 
           </div>
         ) : (
@@ -353,21 +395,7 @@ function Chat({ links, setLinks,isChecked }) {
           }}
         >
           <img src="arrow-down.svg" alt="" className=" text-green-500" />
-          {/* <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            class="m-1 text-black dark:text-white"
-          >
-            <path
-              d="M17 13L12 18L7 13M12 6L12 17"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ></path>
-          </svg> */}
+          
         </button>
       )}
 
@@ -402,6 +430,7 @@ function Chat({ links, setLinks,isChecked }) {
           <span className="mt-3">Ton assistant refléchit ...</span>
         </div>
       )}
+      {showSuggestions && (
       <div className="flex flex-col items-stretch  justify-center px-14  mt-2 md:px-5">
         <div className="flex  gap-3.5 justify-center ">
           <div className="flex gap-2.5">
@@ -427,7 +456,8 @@ function Chat({ links, setLinks,isChecked }) {
             </button>
           </div>
         </div>
-      </div>
+      </div>)
+}
       <div className="flex items-center lg:mx-20 mt-2 mx-2">
         {/* <label className="cursor-pointer" htmlFor="fileInput">
           <img src="joinfile.svg" alt="" className="mr-2" />

@@ -1,14 +1,16 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link ,useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-function Sidebar({ isSidebarOpen, toggleMenu, openMenuId }) {
+function Sidebar({ isSidebarOpen, toggleMenu, openMenuId, setIsEditing, isEditing }) {
   const [conversations, setConversations] = useState([]);
+  let navigate = useNavigate()
+
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedConversationId, setSelectedConversationId] = useState(null);
 
-  const [isEditing, setIsEditing] = useState(false);
   const [isEditedId, setisEditedId] = useState();
 
   const [newTitle, setNewTitle] = useState("");
@@ -62,6 +64,7 @@ const renderConversations = (conversations) => {
               {isEditing && isEditedId == conversation.id ? (
                 <div className="flex">
                   <input
+                  autoFocus
                     className="border pl-2 rounded-md border-zinc-300 focus:outline-none focus:border-zinc-500"
                     type="text"
                     value={newTitle}
@@ -122,7 +125,7 @@ const renderConversations = (conversations) => {
               <div className=" relative inline-block">
                 {/* Contextual Menu */}
                 {openMenuId === conversation.id && (
-                  <div className="absolute -right-1  mt-5 w-56 rounded-md shadow-lg bg-white z-20 ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: "100%" }} role="menu" aria-orientation="vertical" tabIndex="-1">
+                  <div className="absolute -right-2  mt-5 w-56 rounded-md shadow-lg bg-white z-20 ring-1 ring-black ring-opacity-5 focus:outline-none" style={{ top: "100%" }} role="menu" aria-orientation="vertical" tabIndex="-1">
                     <div className="py-1" role="none">
                       {/* Menu Items */}
                       <a href="#" className="text-gray-700 flex  gap-2 items-center px-4 py-2 text-sm" role="menuitem" tabIndex="-1" onClick={() => handleEditClick(conversation.id)}>
@@ -152,7 +155,7 @@ const renderConversations = (conversations) => {
   const handleSubmit = async (id) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
+        `http://192.168.3.20:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
       );
       // Update conversation title on success
       setIsEditing(false);
@@ -167,7 +170,7 @@ const renderConversations = (conversations) => {
 
   function handleNewConversation() {
     // This is where we'll add the code to create a new conversation
-    const apiUrl = "http://localhost:8080/api/conversations/create?user_id=1";
+    const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id=1";
 
     // Make the POST request using Axios
     axios
@@ -207,7 +210,7 @@ const renderConversations = (conversations) => {
   function deleteConversation(id) {
     // This is where we'll add the code to create a new conversation
     const apiUrl =
-      "http://localhost:8080/api/conversations/deleteByConversationId?conversationId=" +
+      "http://192.168.3.20:8080/api/conversations/deleteByConversationId?conversationId=" +
       id +
       "&userId=1";
     axios
@@ -253,7 +256,7 @@ const renderConversations = (conversations) => {
   }
   useEffect(() => {
     const apiUrl =
-      "http://localhost:8080/api/conversations/conversationsByUserId?userId=1";
+      "http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId=1";
 
     axios
       .get(apiUrl)
@@ -280,9 +283,9 @@ const renderConversations = (conversations) => {
         <div className="">
           {/* Sidebar Header */}
           <div className="p-4">
-            <a href={"/"}>
+         
               <img src="logo.png" alt="" className="mx-auto" />
-            </a>
+           
           </div>
           <div className="w-full mt-10">
             <div className="w-full px-3">
@@ -346,12 +349,18 @@ const renderConversations = (conversations) => {
             </div>
           </div>
         </div>
-        <div className="h-full" onClick={() => toggleMenu(null)}></div>
+        <div className="h-full" >
+          <img src="logout.png" alt="" className="mx-auto hover:cursor-pointer	" onClick={()=>{
+          localStorage.removeItem("isAuthenticated");
+          navigate("/login")}
+          } />
+        </div>
 
         {/* Sidebar Footer */}
         {/* <div className="p-4 mb-6">
           <img src="settings.svg" alt="" className="mx-auto" />
         </div> */}
+      
       </div>
 
       <Outlet />

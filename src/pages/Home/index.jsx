@@ -3,8 +3,12 @@ import Header from "../../components/Header";
 import AsideFiles from "../../components/AsideFiles";
 import React, { useState } from "react";
 
-function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu }) {
+function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu,setIsEditing,isEditing }) {
   const [links, setLinks] = useState([]); // State to store extracted links
+  if(localStorage.getItem("isAuthenticated") === null){
+    window.location.href = "/login"
+  }
+  
   console.log(links);
   function toggleDark() {
     document.documentElement.classList.toggle("dark");
@@ -23,7 +27,7 @@ function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu }) {
   return (
     <div
       className="w-full lg:h-screen dark:bg-black "
-      onClick={() => toggleMenu(null)}
+      onClick={() => {toggleMenu(null);setIsEditing(false)}}
     >
       <div>
         <Header

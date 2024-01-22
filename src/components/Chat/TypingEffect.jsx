@@ -41,7 +41,7 @@ const TypingEffect = ({
 
       return () => clearTimeout(timer);
     }
-  }, [index, message, speed, tagSpeed, displayedContent, onContentChange]);
+  }, [index, message, speed, tagSpeed, displayedContent]);
 
   return <div dangerouslySetInnerHTML={{ __html: displayedContent }} />;
 };
