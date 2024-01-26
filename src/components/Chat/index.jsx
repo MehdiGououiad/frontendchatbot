@@ -1,23 +1,24 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import TypingEffect from "./TypingEffect";
-function Chat({ links, setLinks,isChecked }) {
+
+function Chat({ setLinks,isChecked ,id,showPopup}) {
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef(null);
-  const [showSuggestions, setShowSuggestions] = useState(true);
+  
+  const idUser=localStorage.getItem("id")
 
   const [chat, setChat] = useState([]);
   const [lastmessageId, setLastmessageId] = useState(0);
+
+
+
+
   const handleChange = (event) => {
     setInputValue(event.target.value);
   };
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      // Call handleSend when the Enter key is pressed
-      handleSend();
-    }
-  };
+  
   function extractHref(htmlContent) {
     const urlRegex = /http[s]?:\/\/[^\s]+/g;
     const matches = htmlContent.match(urlRegex);
@@ -70,109 +71,66 @@ function Chat({ links, setLinks,isChecked }) {
   }
 
   const handleSend = async (predefined) => {
-    setShowSuggestions(false);
-    let value = inputValue;
+    let value = predefined ?? inputValue.trim(); // Trim and use predefined if available, else use trimmed inputValue
+
+    // Check if the value is empty and return early if it is
+    if (!value) {
+        console.log("Input is empty or contains only whitespace. Not sending.");
+        return;
+    }
     if (predefined !== undefined) {
-      value = predefined;
-      setInputValue(predefined);
+        setInputValue(predefined);
     }
     setIsThinking(true); // Start thinking
-    // setIsThinking(false); // Stop thinking after a delay
-    // Your send logic here
+
     const conversationId = getConversationIdFromUrl();
+    const version = isChecked ? "2" : "1";
+    const apiUrl = `http://192.168.3.20:8080/api/questions/ask`;
 
-    if(isChecked){
-      
-    const apiUrl = `http://192.168.3.20:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=2`;
     try {
-      // Assuming apiUrl is defined somewhere in your code
-      const response = await axios
-        .post(apiUrl)
-        .then((response) => {
-          // setLastmessageId(response.data.id);
-          console.log(response.data);
-          setLastmessageId(response.data);
-          // Handle the API response here if needed
-          getMessages();
-          setInputValue("");
-        })
-        .catch((error) => {
-          // Handle any errors here
-          console.error("API Error:", error);
-        });
+        const payload = {
+            question: value,
+            conversationId: conversationId,
+            version: version
+        };
 
-      // Handle the API response here if needed
-
-      // Assuming getMessages() and setInputValue() are defined and need to be called after the response
-      getMessages();
-      setInputValue("");
+        const response = await axios.post(apiUrl, payload);
+        setLastmessageId(response.data); // Assuming response.data has the ID
+        getMessages();
+        setInputValue("");
     } catch (error) {
-      // Handle any errors here
-      console.error("API Error:", error);
+        if (error.response) {
+            console.log("Error response status:", error.response.status);
+            showPopup(isChecked ? "LLM API DOWN" : "Embedding API DOWN");
+        } else if (error.code === 'ECONNABORTED' || error.message === 'timeout of xms exceeded') {
+            // Handle timeout error
+            showPopup("Server Down: Request Timeout");
+        } else if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
+            // Handle connection refused error
+            showPopup("Network Error: Connection Refused");
+        } else {
+            console.log("Error:", error);
+        }
     } finally {
-      // Set isThinking to false once the call is complete or if an error occurs
-      setIsThinking(false);
+        setIsThinking(false); // Done thinking
     }
-    }
-    else{
+};
 
-    const apiUrl = `http://192.168.3.20:8080/api/questions/ask?question=${value}&conversationId=${conversationId}&version=1`;
-    try {
-      // Assuming apiUrl is defined somewhere in your code
-      const response = await axios
-        .post(apiUrl)
-        .then((response) => {
-          // setLastmessageId(response.data.id);
-          console.log(response.data);
-          setLastmessageId(response.data);
-          // Handle the API response here if needed
-          getMessages();
-          setInputValue("");
-        })
-        .catch((error) => {
-          // Handle any errors here
-          console.error("API Error:", error);
-        });
 
-      // Handle the API response here if needed
 
-      // Assuming getMessages() and setInputValue() are defined and need to be called after the response
-      getMessages();
-      setInputValue("");
-    } catch (error) {
-      // Handle any errors here
-      console.error("API Error:", error);
-    } finally {
-      // Set isThinking to false once the call is complete or if an error occurs
-      setIsThinking(false);
-    }
-  }
-    // Make the API call with the input value
-  };
+
   function getConversationIdFromUrl() {
-    // Get the pathname from the URL
-    const pathname = window.location.pathname;
-
-    // Check if the pathname contains a number (assuming the ID is a number)
-    const match = pathname.match(/\/(\d+)/);
-    if (match) {
-      // Extracted ID from the pathname
-      return match[1]; // Use match[1] because the capturing group is inside parentheses
-    } else {
-      // Handle the case where there is no valid ID in the pathname
-      console.error("Invalid conversation ID in URL");
-      return null;
-    }
+    return id;
   }
   function handleResponseSelection(content) {
     const conversationId = getConversationIdFromUrl();
-    console.log(content);
 
     
   }
 
   function getMessages() {
     const conversationId = getConversationIdFromUrl();
+
     if (conversationId !== null) {
       // Make the API call with the extracted conversation ID
       const apiUrl = `http://192.168.3.20:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
@@ -186,11 +144,10 @@ function Chat({ links, setLinks,isChecked }) {
         })
         .catch((error) => {
           // Handle any errors here
-          console.error("API Error:", error);
         });
     } else {
       const apiUrl =
-        "http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId=1";
+        "http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId="+idUser;
 
       axios
         .get(apiUrl)
@@ -207,7 +164,7 @@ function Chat({ links, setLinks,isChecked }) {
             const firstConversationId = firstConversation.id;
 
             // Navigate to the new URL using the extracted id
-            window.location.href = `/${firstConversationId}`;
+            navigate(`/${firstConversationId}`);
           }
         })
         .catch((err) => {});
@@ -219,7 +176,6 @@ function Chat({ links, setLinks,isChecked }) {
     }
   };
   const [showScrollButton, setShowScrollButton] = useState(false);
-  console.log(showScrollButton);
   const scrollThreshold = 200; // Change this value as needed
 
   // Function to handle scroll events
@@ -233,6 +189,31 @@ function Chat({ links, setLinks,isChecked }) {
       setShowScrollButton(distanceFromBottom > scrollThreshold);
     }
   };
+  function handleNewConversation() {
+    // This is where we'll add the code to create a new conversation
+    const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id="+idUser;
+
+    // Make the POST request using Axios
+    axios
+      .post(apiUrl)
+      .then((response) => {
+        // Handle the response here
+        const conversations = response.data;
+
+        
+            const lastConversation = conversations[conversations.length - 1];
+            // Assuming lastConversation has a property 'id' or similar to use in the URL
+            const lastConversationId = lastConversation.id;
+        
+            // Navigate to the URL based on the last conversation
+            window.location.href = `/${lastConversationId}`;
+        
+
+      })
+      .catch((error) => {
+        // Handle any errors here
+      });
+  }
   const categorizeMessages = (messages) => {
     const today = new Date();
     const yesterday = new Date(today);
@@ -285,7 +266,7 @@ function Chat({ links, setLinks,isChecked }) {
 
   useEffect(() => {
     getMessages();
-  }, []);
+  }, [id]);
   return (
     <div className="lg:w-[80%] lg:border-r border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] ">
       <div
@@ -293,7 +274,7 @@ function Chat({ links, setLinks,isChecked }) {
         onScroll={handleScroll}
         className="overflow-y-auto flex-grow  bg-[url('background.svg')] bg-center bg-auto bg-no-repeat"
       >
-        <div className="flex gap-4 ml-8 mt-8">
+        <div className="flex gap-4 ml-2 mt-8">
           <img src="bot.svg" alt="" />
           <div className="">
             <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl">
@@ -359,7 +340,7 @@ function Chat({ links, setLinks,isChecked }) {
                     </div>
                   ) : (
                     <div className="flex mr-10">
-                      <img src="bot.svg" alt="" className="ml-8 mr-4" />
+                      <img src="bot.svg" alt="" className="ml-2 mr-4" />
                       <div
                         className={`inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line mr-5 ${
                           message.messageType === "Question"
@@ -367,7 +348,19 @@ function Chat({ links, setLinks,isChecked }) {
                             : "bg-gray-100"
                         }`}
                       >
-                        {message.content}
+                {message.id == lastmessageId ? (
+              <TypingEffect
+                message={message.content}
+                speed={50}
+                onContentChange={handleContentChange}
+              />
+            ) : (
+              <TypingEffect
+              message={message.content}
+              speed={0}
+              onContentChange={handleContentChange}
+            />
+            )}            
                       </div>
                     </div>
                   )}
@@ -430,8 +423,8 @@ function Chat({ links, setLinks,isChecked }) {
           <span className="mt-3">Ton assistant refléchit ...</span>
         </div>
       )}
-      {showSuggestions && (
-      <div className="flex flex-col items-stretch  justify-center px-14  mt-2 md:px-5">
+      { id && chat.length == 0 &&  (
+      <div className=" flex-col items-stretch  justify-center px-14  mt-2 md:px-5 hidden md:flex">
         <div className="flex  gap-3.5 justify-center ">
           <div className="flex gap-2.5">
             <button
@@ -458,29 +451,60 @@ function Chat({ links, setLinks,isChecked }) {
         </div>
       </div>)
 }
-      <div className="flex items-center lg:mx-20 mt-2 mx-2">
-        {/* <label className="cursor-pointer" htmlFor="fileInput">
-          <img src="joinfile.svg" alt="" className="mr-2" />
-        </label>
-        <input type="file" id="fileInput" className="sr-only" /> */}
-        <input
-          type="text"
-          autoFocus
-          value={inputValue}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown} // Call handleKeyDown on key press
-          placeholder="Saisir votre question ..."
-          className="py-2 pl-8 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-500 flex-1"
-        />
+<form
+    onSubmit={(e) => {
+        e.preventDefault(); // Prevent the default form submit action
+        handleSend(undefined);
+    }}
+    className={`lg:mx-20 mt-2 mx-2 ${id ? 'relative flex items-center' :'hidden'}`}
+>
+    <input
+        type="text"
+        autoFocus
+        value={inputValue}
+        onChange={handleChange}
+        placeholder="Saisir votre question ..."
+        className="py-2 pl-8 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-500 flex-1"
+        pattern="\S+.*" // Requires at least one non-whitespace character
+        required // Ensures that the input is not empty
+        title="La question ne peut pas être vide ou ne contenir que des espaces."
+    />
 
-        <button
-          type="button"
-          className="text-white rounded-full p-2 lg:ml-2"
-          onClick={() => handleSend(undefined)}
-        >
-          <img src="send.svg" alt="" />
-        </button>
-      </div>
+    <button
+        type="submit"
+        className="absolute right-0 mr-2 text-white rounded-full p-2"
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
+    >
+        <img src="send.svg" alt="Send" />
+    </button>
+</form>
+
+
+      <div className={`w-[250px] mx-auto px-3 ${id?"hidden":"block"}`}>
+        
+              <button
+                onClick={handleNewConversation}
+                className="inline-flex items-center gap-1 w-full px-2.5 text-sm h-8 transition-all font-medium bg-zinc-100  rounded-md hover:bg-zinc-200 p-5"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  className="w-4 h-4 stroke-2 stroke-zinc-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  ></path>
+                </svg>
+                Nouvelle conversation
+              </button>
+            </div>
+
     </div>
   );
 }

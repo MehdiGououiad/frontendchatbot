@@ -2,14 +2,17 @@ import { Outlet, Link ,useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-function Sidebar({ isSidebarOpen, toggleMenu, openMenuId, setIsEditing, isEditing }) {
+function Sidebar({ isSidebarOpen, toggleMenu, openMenuId, setIsEditing, isEditing,idActive ,showPopup}) {
   const [conversations, setConversations] = useState([]);
   let navigate = useNavigate()
+  const idUser=localStorage.getItem("id")
 
 
   const [loading, setLoading] = useState(true);
+  const [deletePopUp, setDeletePopUp] = useState(false);
+  const [deleteTimeoutId, setDeleteTimeoutId] = useState(null);
+
   const [error, setError] = useState(null);
-  const [selectedConversationId, setSelectedConversationId] = useState(null);
 
   const [isEditedId, setisEditedId] = useState();
 
@@ -60,7 +63,7 @@ const renderConversations = (conversations) => {
         .sort((a, b) => b.id - a.id)
         .map((conversation, index) => {
           return (
-            <div key={index} className={`mx-2 rounded-md px-3 flex justify-between items-center mb-5 cursor-pointer   ${selectedConversationId == conversation.id ? "bg-zinc-300 h-8 p-5" : "bg-zinc-100"}`}>
+            <div key={index} className={`mx-2 rounded-md px-3 flex justify-between items-center mb-5 cursor-pointer   ${idActive == conversation.id ? "bg-zinc-300 h-8 p-5" : "bg-zinc-100"}`}>
               {isEditing && isEditedId == conversation.id ? (
                 <div className="flex">
                   <input
@@ -77,10 +80,10 @@ const renderConversations = (conversations) => {
                   />
                 </div>
               ) : (
-                <div href={`/${conversation.id}`} onClick={(e) => {
+                <div  onClick={(e) => {
                   e.preventDefault();
                   handleLinkClick(conversation.id);
-                }} className={`${selectedConversationId == conversation.id ? "" : ""} flex items-center justify-between text-sm h-8 transition-all font-medium rounded-md p-5 w-full`}>
+                }} className={`flex items-center justify-between text-sm h-8 transition-all font-medium rounded-md p-5 w-full`}>
                   <div>
                     <img src="chat-icon.svg" className="w-5" alt="" />
                   </div>
@@ -161,7 +164,6 @@ const renderConversations = (conversations) => {
       setIsEditing(false);
       // Update the title in your state or context
     } catch (error) {
-      console.error("Error updating title", error);
       // Handle error
     }
   };
@@ -170,14 +172,13 @@ const renderConversations = (conversations) => {
 
   function handleNewConversation() {
     // This is where we'll add the code to create a new conversation
-    const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id=1";
+    const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id="+idUser;
 
     // Make the POST request using Axios
     axios
       .post(apiUrl)
       .then((response) => {
         // Handle the response here
-        console.log(response.data, "response");
         const conversations = response.data;
         setConversations(response.data);
 
@@ -189,12 +190,12 @@ const renderConversations = (conversations) => {
           const lastConversationId = lastConversation.id;
 
           // Navigate to the new URL using the extracted id
-          window.location.href = `/${lastConversationId}`;
+          navigate(`/${lastConversationId}`);
         }
       })
       .catch((error) => {
         // Handle any errors here
-        console.error("Error:", error);
+        showPopup("Erreur lors de la création de la conversation");
       });
   }
 
@@ -205,75 +206,81 @@ const renderConversations = (conversations) => {
     const url = `/${conversationId}`;
 
     // Trigger a full page refresh by setting window.location.href
-    window.location.href = url;
+    navigate(url);
   }
-  function deleteConversation(id) {
-    // This is where we'll add the code to create a new conversation
-    const apiUrl =
-      "http://192.168.3.20:8080/api/conversations/deleteByConversationId?conversationId=" +
-      id +
-      "&userId=1";
-    axios
-      .delete(apiUrl)
+  function cancelDelete() {
+   // Clear the scheduled API call
+   clearTimeout(deleteTimeoutId);
+
+   // Revert the conversations list to include the conversation that was being deleted
+   // Assuming you have a way to retrieve the original list of conversations
+   retrieveConversations();
+
+   // Hide the delete popup
+   setDeletePopUp(false);
+}
+function deleteConversation(id) {
+  // Immediately hide the conversation being deleted
+  const filteredConversations = conversations.filter(convo => convo.id !== id);
+  setConversations(filteredConversations);
+
+  setDeletePopUp(true);
+
+  // Schedule the API call with a 3-second delay
+  const timeoutId = setTimeout(() => {
+      const apiUrl = `http://192.168.3.20:8080/api/conversations/deleteByConversationId?conversationId=${id}&userId=${idUser}`;
+      axios.delete(apiUrl)
+          .then((response) => {
+              // Update conversations with the response data
+              const updatedConversations = response.data;
+              setConversations(updatedConversations);
+
+              // Navigate to the last conversation if there are any left
+              if (updatedConversations.length > 0) {
+                  const lastConversationId = updatedConversations[updatedConversations.length - 1].id;
+                  navigate(`/${lastConversationId}`);
+              } else {
+                  // If all conversations are deleted, navigate to the home page
+                  navigate("/");
+              }
+          })
+          .catch((error) => {
+              // Handle errors here, if necessary
+              console.error('Error deleting conversation:', error);
+              // Optionally, revert the conversations list if the delete fails
+              setConversations(conversations);
+          });
+
+      setDeletePopUp(false);
+  }, 3000);
+
+  // Store the timeout ID for possible cancellation
+  setDeleteTimeoutId(timeoutId);
+}
+const retrieveConversations = () => {
+  setLoading(true); // Assuming you have a loading state
+
+  const apiUrl = `http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId=${idUser}`;
+
+  axios.get(apiUrl)
       .then((response) => {
-        // Handle the response here
-        // Handle the response here
-        console.log(response.data, "response");
-        const conversations = response.data;
-        setConversations(response.data);
-
-        if (conversations.length > 0) {
-          // Get the last conversation from the array
-          const lastConversation = conversations[conversations.length - 1];
-
-          // Extract the id from the last conversation
-          const lastConversationId = lastConversation.id;
-
-          // Navigate to the new URL using the extracted id
-          window.location.href = `/${lastConversationId}`;
-        }
-      })
-      .catch((error) => {
-        // Handle any errors here
-        console.error("Error:", error);
-      });
-  }
-  function getConversationIdFromUrl() {
-    // Get the pathname from the URL
-    const pathname = window.location.pathname;
-
-    // Check if the pathname contains a number (assuming the ID is a number)
-    const match = pathname.match(/\/(\d+)/);
-
-    if (match) {
-      // Extracted ID from the pathname
-      return match[1]; // Use match[1] because the capturing group is inside parentheses
-    } else {
-      // Handle the case where there is no valid ID in the pathname
-      console.error("Invalid conversation ID in URL");
-      return null;
-    }
-  }
-  useEffect(() => {
-    const apiUrl =
-      "http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId=1";
-
-    axios
-      .get(apiUrl)
-      .then((response) => {
-        setConversations(response.data);
-        setLoading(false);
+          setConversations(response.data); // Update the conversations state
+          setLoading(false);
       })
       .catch((err) => {
-        setError(err);
-        setLoading(false);
+          setError(err); // Assuming you have an error state
+          setLoading(false);
       });
-    setSelectedConversationId(getConversationIdFromUrl());
+};
+  
+  useEffect(() => {
+    retrieveConversations()
   }, [isEditing]);
 
   return (
     <div className="flex">
       <div
+      onClick={() => {toggleMenu(null);if(isEditing){setIsEditing(false)}}}
         className={`${
           isSidebarOpen
             ? "fixed inset-0 transform translate-x-0 bg-white"
@@ -323,38 +330,63 @@ const renderConversations = (conversations) => {
                 >
                    {/* Today Conversations */}
     <div>
-      <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
-        Aujourd'hui
-      </div>
-      {renderConversations(todayConversations)}
+    <div>
+  {todayConversations.length > 0 && (
+    <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
+      Aujourd'hui
+    </div>
+  )}
+  {renderConversations(todayConversations)}
+</div>
     </div>
 
     {/* Yesterday Conversations */}
     <div>
-      <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
-        Hier
-      </div>
-      {renderConversations(yesterdayConversations)}
+    {yesterdayConversations.length > 0 && (
+    <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
+      Hier
+    </div>
+    )}
+  {renderConversations(yesterdayConversations)}
     </div>
 
     {/* Historique Conversations */}
     <div>
-      <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
-        Historique
-      </div>
-      {renderConversations(beforeYesterdayConversations)}
+    {beforeYesterdayConversations.length > 0 && (
+    <div className="px-2 pb-2 font-medium text-emerald-700 mt-6 mb-1">
+      Historique
+    </div>
+  )}
+  {renderConversations(beforeYesterdayConversations)}
     </div>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <div className="h-full" >
+        <div className="mb-10"  >
           <img src="logout.png" alt="" className="mx-auto hover:cursor-pointer	" onClick={()=>{
           localStorage.removeItem("isAuthenticated");
           navigate("/login")}
           } />
+          
+        {
+          deletePopUp && (
+            <div className="mx-auto">
+              <span>Conversation supprimée.</span>
+              <button 
+              onClick={() => cancelDelete()} 
+              className="text-blue-500 inline hover:text-blue-700 bg-transparent font-semibold border border-transparent rounded hover:underline focus:outline-none"
+              >
+              Annuler
+            </button>
+
+                        </div>
+          )
+        }
         </div>
+
+
 
         {/* Sidebar Footer */}
         {/* <div className="p-4 mb-6">

@@ -10,18 +10,21 @@ let navigate = useNavigate()
     e.preventDefault();
     
     try {
+      // Await for the response from the server
       const response = await axios.post(`http://192.168.3.20:8080/api/users/login?username=${username}&password=${password}`);
+      // Once the response is received, set items in localStorage
       localStorage.setItem("isAuthenticated", true);
       localStorage.setItem("username", username);
-
-
-      navigate("/")
-
-      console.log(response); // Handle success scenario here
-
-    } catch (error) {
-      console.error(error); // Handle error scenario here
-    }
+      localStorage.setItem("id", response.data.userId); // Assuming the response contains the user ID
+  
+      // Navigate to the home page or dashboard after successful login
+      navigate("/");
+  } catch (error) {
+      // Handle errors, such as showing a login failure message
+      console.error("Login failed:", error);
+      // Additional error handling here, like setting an error state to show in the UI
+  }
+  
   };
   return (
     <div className=" h-screen flex justify-center items-center">
