@@ -62,10 +62,10 @@ function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleCl
           </h1>
          
 
-<label class="relative inline-flex items-center me-5 cursor-pointer" >
-  <input type="checkbox" checked={isChecked} value="" class="sr-only peer" onClick={()=>handleClick()} />
-  <div class={`w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-4 ${isChecked ? "ring-green-300 " : "ring-blue-300 "} peer-checked:after:translate-x-full  after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${isChecked ? "bg-green-600" : "bg-blue-600"}`}></div>
-  <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{isChecked ? "v2" : "v1"}</span>
+<label className="relative inline-flex items-center me-5 cursor-pointer" >
+  <input type="checkbox" defaultChecked={isChecked} value="" className="sr-only peer" onClick={()=>handleClick()} />
+  <div className={`w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-4 ${isChecked ? "ring-green-300 " : "ring-blue-300 "} peer-checked:after:translate-x-full  after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${isChecked ? "bg-green-600" : "bg-blue-600"}`}></div>
+  <span className="ms-3 text-sm font-medium text-gray-900 dark:text-vgray-300">{isChecked ? "v2" : "v1"}</span>
 </label>
           {/* <img className="mr-16" src="dark.svg" alt="" onClick={toggleDark} /> */}
           {/* <h2 className="text-zinc-600 text-xl leading-6 ml-5">

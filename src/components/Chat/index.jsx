@@ -69,6 +69,60 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
 
     setLinks(extractedLinks);
   }
+//   const handleSend = async (predefined) => {
+//     let value = predefined ?? inputValue.trim();
+
+//     if (!value) {
+//         console.log("Input is empty or contains only whitespace. Not sending.");
+//         return;
+//     }
+
+//     try {
+//         const apiUrl = `http://192.168.3.20:8000/query?query=${encodeURIComponent(value)}`;
+//         const eventSource = new EventSource(apiUrl);
+
+//         let streamedData = ''; // Variable to accumulate streamed text
+
+//         eventSource.onmessage = function(event) {
+//             if (event.data === 'END_OF_STREAM') {
+//                 console.log("Stream complete. Full streamed data:");
+//                 console.log(streamedData.trim()); // Log all the text that was streamed as one line
+//                 eventSource.close();
+//             } else {
+//                 // Append each data message to the streamedData variable
+//                 streamedData += event.data + ' ';
+//             }
+//         };
+
+//         eventSource.onerror = function(error) {
+//             console.error("EventSource failed:", error);
+//             eventSource.close();
+//             // Optionally, handle specific error scenarios here
+//         };
+//     }  catch (error) {
+//               if (error.response) {
+//                   console.log("Error response status:", error.response.status);
+//                   showPopup(isChecked ? "LLM API DOWN" : "Embedding API DOWN");
+//               } else if (error.code === 'ECONNABORTED' || error.message === 'timeout of xms exceeded') {
+//                   // Handle timeout error
+//                   showPopup("Server Down: Request Timeout");
+//               } else if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
+//                   // Handle connection refused error
+//                   showPopup("Network Error: Connection Refused");
+//               } else {
+//                   console.log("Error:", error);
+//               }
+//     }
+
+//     // No need for fetch here, as EventSource handles the GET request
+// };
+
+
+
+
+// Remember to include other necessary components and functions
+// such as setInputValue, setIsThinking, showPopup, etc.
+
 
   const handleSend = async (predefined) => {
     let value = predefined ?? inputValue.trim(); // Trim and use predefined if available, else use trimmed inputValue
