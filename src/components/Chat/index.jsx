@@ -232,17 +232,25 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollThreshold = 200; // Change this value as needed
 
-  // Function to handle scroll events
-  const handleScroll = () => {
-    if (scrollRef.current) {
+ // handleScrollEvent adapted to accept a boolean parameter to force scrolling to the bottom
+const handleScrollEvent = (forceScrollToBottom = false) => {
+  if (scrollRef.current) {
+    if (forceScrollToBottom) {
+      // Force scroll to the bottom
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    } else {
+      // Handle manual scroll event for button visibility
       const distanceFromBottom =
         scrollRef.current.scrollHeight -
         scrollRef.current.scrollTop -
         scrollRef.current.offsetHeight;
-      // Show the button if the user has scrolled up past the threshold
       setShowScrollButton(distanceFromBottom > scrollThreshold);
     }
-  };
+  }
+};
+
+  
+  
   function handleNewConversation() {
     // This is where we'll add the code to create a new conversation
     const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id="+idUser;
@@ -325,7 +333,7 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
     <div className="lg:w-[80%] lg:border-r border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] ">
       <div
         ref={scrollRef}
-        onScroll={handleScroll}
+         onScroll={() => handleScrollEvent(false)}
         className="overflow-y-auto flex-grow  bg-[url('background.svg')] bg-center bg-auto bg-no-repeat"
       >
         <div className="flex gap-4 ml-2 mt-8">
@@ -405,14 +413,16 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
                 {message.id == lastmessageId ? (
               <TypingEffect
                 message={message.content}
-                speed={50}
+                speed={10}
                 onContentChange={handleContentChange}
+                handleScrollEvent={handleScrollEvent}
               />
             ) : (
               <TypingEffect
               message={message.content}
               speed={0}
               onContentChange={handleContentChange}
+              handleScrollEvent={handleScrollEvent}
             />
             )}            
                       </div>
@@ -510,7 +520,7 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
         e.preventDefault(); // Prevent the default form submit action
         handleSend(undefined);
     }}
-    className={`lg:mx-20 mt-2 mx-2 ${id ? 'relative flex items-center' :'hidden'}`}
+    className={`lg:mx-20 mt-4 mx-2 ${id ? 'relative flex items-center' :'hidden'}`}
 >
     <input
         type="text"
@@ -518,7 +528,7 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
         value={inputValue}
         onChange={handleChange}
         placeholder="Saisir votre question ..."
-        className="py-2 pl-8 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-500 flex-1"
+        className="py-2 pl-8 pr-12 rounded-2xl border border-gray-300 focus:outline-none focus:ring focus:border-blue-500 flex-1"
         pattern="\S+.*" // Requires at least one non-whitespace character
         required // Ensures that the input is not empty
         title="La question ne peut pas être vide ou ne contenir que des espaces."
@@ -531,8 +541,9 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
     >
         <img src="send.svg" alt="Send" />
     </button>
-</form>
 
+</form>
+<p className=" text-xs mt-3 italic fixed bottom-0 left-[32%] py-2">Les réponses de Rhym sont à titre indicatif, merci de contacter votre responsable RH pour plus de détails</p>
 
       <div className={`w-[250px] mx-auto px-3 ${id?"hidden":"block"}`}>
         

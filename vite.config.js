@@ -7,4 +7,9 @@ export default defineConfig({
   server: {
     host: true,
   },
+  // watch: {
+  //   usePolling: true,
+  //   interval: 100, // Poll every 100ms (adjust as needed)
+  // },
+  
 });

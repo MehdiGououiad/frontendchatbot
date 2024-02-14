@@ -5,45 +5,48 @@ const TypingEffect = ({
   speed,
   tagSpeed = 5,
   onContentChange,
+  handleScrollEvent
 }) => {
   const [displayedContent, setDisplayedContent] = useState("");
   const [index, setIndex] = useState(0);
   const insideTag = useRef(false);
+  const contentRef = useRef(null); // New ref to access the content container
 
   useEffect(() => {
+    
+
     if (speed === 0) {
-      // If speed is 0, display the full message immediately
-      setDisplayedContent(message.replace(/\\n/g, "<br>"));
+      setDisplayedContent(message.replace(/\n/g, "<br>")); // Ensure regex is correct for actual newlines
+      handleScrollEvent(true); // Pass true to force scrolling to the bottom
       if (onContentChange) {
         onContentChange(message);
       }
     } else if (index < message.length) {
-      // Check if the current character is a tag opening or closing
       if (message.charAt(index) === "<") {
         insideTag.current = true;
       } else if (message.charAt(index) === ">") {
         insideTag.current = false;
       }
 
-      // Determine speed based on whether we're inside a tag
       const currentSpeed = insideTag.current ? tagSpeed : speed;
 
       const timer = setTimeout(() => {
-        // Check for "\n" sequence and replace with a newline character
-        if (message.charAt(index) === "\\" && index + 1 < message.length && message.charAt(index + 1) === "n") {
-          setDisplayedContent(prev => prev + "<br>");
-          setIndex(index + 2); // Skip the 'n' character as it's part of the "\n" sequence
+        if (message.charAt(index) === "\\" && message.charAt(index + 1) === "n") {
+          setDisplayedContent((prev) => prev + "<br>");
+          setIndex(index + 2);
         } else {
-          setDisplayedContent(prev => prev + message.charAt(index));
-          setIndex(prev => prev + 1);
+          setDisplayedContent((prev) => prev + message.charAt(index));
+          setIndex((prev) => prev + 1);
         }
+        console.log("index", index);
+        handleScrollEvent(true); // Pass true to force scrolling to the bottom
       }, currentSpeed);
 
       return () => clearTimeout(timer);
     }
-  }, [index, message, speed, tagSpeed, displayedContent]);
+  }, [index, message, speed, tagSpeed]);
 
-  return <div dangerouslySetInnerHTML={{ __html: displayedContent }} />;
+  return <div ref={contentRef} dangerouslySetInnerHTML={{ __html: displayedContent }} />;
 };
 
 export default TypingEffect;
