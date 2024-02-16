@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import TypingEffect from "./TypingEffect";
 
-function Chat({ setLinks,isChecked ,id,showPopup}) {
+function Chat({ setLinks,isChecked ,id,showPopup ,setIsEditing}) {
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef(null);
@@ -69,106 +69,79 @@ function Chat({ setLinks,isChecked ,id,showPopup}) {
 
     setLinks(extractedLinks);
   }
-//   const handleSend = async (predefined) => {
-//     let value = predefined ?? inputValue.trim();
-
-//     if (!value) {
-//         console.log("Input is empty or contains only whitespace. Not sending.");
-//         return;
-//     }
-
-//     try {
-//         const apiUrl = `http://192.168.3.20:8000/query?query=${encodeURIComponent(value)}`;
-//         const eventSource = new EventSource(apiUrl);
-
-//         let streamedData = ''; // Variable to accumulate streamed text
-
-//         eventSource.onmessage = function(event) {
-//             if (event.data === 'END_OF_STREAM') {
-//                 console.log("Stream complete. Full streamed data:");
-//                 console.log(streamedData.trim()); // Log all the text that was streamed as one line
-//                 eventSource.close();
-//             } else {
-//                 // Append each data message to the streamedData variable
-//                 streamedData += event.data + ' ';
-//             }
-//         };
-
-//         eventSource.onerror = function(error) {
-//             console.error("EventSource failed:", error);
-//             eventSource.close();
-//             // Optionally, handle specific error scenarios here
-//         };
-//     }  catch (error) {
-//               if (error.response) {
-//                   console.log("Error response status:", error.response.status);
-//                   showPopup(isChecked ? "LLM API DOWN" : "Embedding API DOWN");
-//               } else if (error.code === 'ECONNABORTED' || error.message === 'timeout of xms exceeded') {
-//                   // Handle timeout error
-//                   showPopup("Server Down: Request Timeout");
-//               } else if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
-//                   // Handle connection refused error
-//                   showPopup("Network Error: Connection Refused");
-//               } else {
-//                   console.log("Error:", error);
-//               }
-//     }
-
-//     // No need for fetch here, as EventSource handles the GET request
-// };
 
 
+const handleSend = async (predefined) => {
+  let value = predefined ?? inputValue.trim(); // Trim and use predefined if available, else use trimmed inputValue
 
+  // Check if the value is empty and return early if it is
+  if (!value) {
+      console.log("Input is empty or contains only whitespace. Not sending.");
+      return;
+  }
+  if (predefined !== undefined) {
+      setInputValue(predefined);
+  }
+  setIsThinking(true); // Start thinking
 
-// Remember to include other necessary components and functions
-// such as setInputValue, setIsThinking, showPopup, etc.
+  const conversationId = getConversationIdFromUrl();
+  const version = isChecked ? "2" : "1";
+  const apiUrl = `http://192.168.3.20:8080/api/questions/ask`;
 
+  try {
+      const payload = {
+          question: value,
+          conversationId: conversationId,
+          version: version
+      };
 
-  const handleSend = async (predefined) => {
-    let value = predefined ?? inputValue.trim(); // Trim and use predefined if available, else use trimmed inputValue
+      const response = await axios.post(apiUrl, payload);
+      setLastmessageId(response.data); // Assuming response.data has the ID
+      getMessages();
 
-    // Check if the value is empty and return early if it is
-    if (!value) {
-        console.log("Input is empty or contains only whitespace. Not sending.");
-        return;
-    }
-    if (predefined !== undefined) {
-        setInputValue(predefined);
-    }
-    setIsThinking(true); // Start thinking
+      // New logic to check conversation length and potentially update title
+      const conversationLength = chat.length;
+      if (conversationLength <= 1) { // Assuming a new conversation or first message
+          const newTitle = value; // Define how you get or set this new title
+          await handleSubmit(conversationId, newTitle); // Assuming handleSubmit can accept newTitle
+      }
 
-    const conversationId = getConversationIdFromUrl();
-    const version = isChecked ? "2" : "1";
-    const apiUrl = `http://192.168.3.20:8080/api/questions/ask`;
-
-    try {
-        const payload = {
-            question: value,
-            conversationId: conversationId,
-            version: version
-        };
-
-        const response = await axios.post(apiUrl, payload);
-        setLastmessageId(response.data); // Assuming response.data has the ID
-        getMessages();
-        setInputValue("");
-    } catch (error) {
-        if (error.response) {
-            console.log("Error response status:", error.response.status);
-            showPopup(isChecked ? "LLM API DOWN" : "Embedding API DOWN");
-        } else if (error.code === 'ECONNABORTED' || error.message === 'timeout of xms exceeded') {
-            // Handle timeout error
-            showPopup("Server Down: Request Timeout");
-        } else if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
-            // Handle connection refused error
-            showPopup("Network Error: Connection Refused");
-        } else {
-            console.log("Error:", error);
-        }
-    } finally {
-        setIsThinking(false); // Done thinking
-    }
+      setInputValue("");
+  } catch (error) {
+      handleSendError(error);
+  } finally {
+      setIsThinking(false); // Done thinking
+  }
 };
+
+const handleSendError = (error) => {
+  if (error.response) {
+      console.log("Error response status:", error.response.status);
+      showPopup(isChecked ? "LLM API DOWN" : "Embedding API DOWN");
+  } else if (error.code === 'ECONNABORTED' || error.message === 'timeout of xms exceeded') {
+      // Handle timeout error
+      showPopup("Server Down: Request Timeout");
+  } else if (error.message === 'Network Error' || error.message.includes('ERR_CONNECTION_REFUSED')) {
+      // Handle connection refused error
+      showPopup("Network Error: Connection Refused");
+  } else {
+      console.log("Error:", error);
+  }
+};
+
+// Modified handleSubmit to accept newTitle as a parameter
+const handleSubmit = async (id, newTitle) => {
+  try {
+    const response = await axios.put(
+      `http://192.168.3.20:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
+    );
+    setIsEditing(true);
+  } catch (error) {
+    console.log("Error updating title:", error);
+    // Optionally handle the error, e.g., show an error message
+  }
+};
+
 
 
 
@@ -492,24 +465,24 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
         <div className="flex  gap-3.5 justify-center ">
           <div className="flex gap-2.5">
             <button
-              onClick={() => handleSend("C'est quoi Futuris ?")}
+              onClick={() => handleSend("Comment bénéficiez d'une visite médicale ?")}
               className="px-8 py-2 text-sm leading-5 text-white whitespace-nowrap justify-center items-stretch bg-emerald-600 rounded-xl hover:bg-emerald-900 md:px-5 md:py-2"
             >
-              C'est quoi Futuris ?
+              Comment bénéficiez d'une visite médicale ?
             </button>
             <button
-              onClick={() => handleSend("Quels sont mes portails RH ?")}
+              onClick={() => handleSend("C'est quoi le block-leave ?")}
               className="px-6 py-2 text-sm leading-5 text-white whitespace-nowrap justify-center items-stretch bg-emerald-600 rounded-xl hover:bg-emerald-900 md:px-5 md:py-2"
             >
-              Quels sont mes portails RH ?
+              C'est quoi le block-leave ?
             </button>
             <button
               onClick={() =>
-                handleSend("Combien on peut mettre sur l'epargne retraite ?")
+                handleSend("Est-ce que mon salaire est maintenu en cas de maladie ?")
               }
               className="px-6 py-2 text-sm leading-5 text-white whitespace-nowrap justify-center items-stretch bg-emerald-600 rounded-xl hover:bg-emerald-900 md:px-5 md:py-2"
             >
-              Combien on peut mettre sur l'epargne retraite ?
+              Est-ce que mon salaire est maintenu en cas de maladie ?
             </button>
           </div>
         </div>
@@ -543,7 +516,7 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
     </button>
 
 </form>
-<p className=" text-xs mt-3 italic fixed bottom-0 left-[32%] py-2">Les réponses de Rhym sont à titre indicatif, merci de contacter votre responsable RH pour plus de détails</p>
+<p className=" text-xs mt-3 italic text-center">Les réponses de Rhym sont à titre indicatif, merci de contacter votre responsable RH pour plus de détails</p>
 
       <div className={`w-[250px] mx-auto px-3 ${id?"hidden":"block"}`}>
         

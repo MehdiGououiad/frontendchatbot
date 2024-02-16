@@ -53,7 +53,7 @@ setIdActive(conversationId)
         />
       </div>
       <div className="flex" onClick={() => setIsSidebarOpen(false)}>
-        <Chat links={links} setLinks={setLinks}  isChecked={isChecked} id={id} showPopup={showPopup} />
+        <Chat links={links} setLinks={setLinks}  isChecked={isChecked} id={id} showPopup={showPopup} setIsEditing={setIsEditing} />
         <AsideFiles links={links} />
       </div>
     </div>

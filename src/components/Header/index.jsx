@@ -61,19 +61,16 @@ function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleCl
       <div className="flex justify-center">
         <div className="lg:flex items-center justify-between  lg:border-b border-r border-gray-300 w-[80%] hidden">
           <h1 className="text-black text-xl leading-6 font-bold ml-8 ">
-            Bienvenue dans MyHR, votre chatbot RH
+          Bienvenue sur Rhym, votre chatbot RH
           </h1>
          
 
-<label className="relative inline-flex items-center me-5 cursor-pointer" >
-  <input type="checkbox" defaultChecked={isChecked} value="" className="sr-only peer" onClick={()=>handleClick()} />
-  <div className={`w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-4 ${isChecked ? "ring-green-300 " : "ring-blue-300 "} peer-checked:after:translate-x-full  after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${isChecked ? "bg-green-600" : "bg-blue-600"}`}></div>
-  <span className="ms-3 text-sm font-medium text-gray-900 dark:text-vgray-300">{isChecked ? "v3" : "v1"}</span>
-</label>
-          {/* <img className="mr-16" src="dark.svg" alt="" onClick={toggleDark} /> */}
-          {/* <h2 className="text-zinc-600 text-xl leading-6 ml-5">
-            La banque d&apos;un monde qui change
-          </h2> */}
+{/* <label className="relative inline-flex items-center me-5 cursor-pointer" > */}
+  {/* <input type="checkbox" defaultChecked={isChecked} value="" className="sr-only peer" onClick={()=>handleClick()} /> */}
+  {/* <div className={`w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-4 ${isChecked ? "ring-green-300 " : "ring-blue-300 "} peer-checked:after:translate-x-full  after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${isChecked ? "bg-green-600" : "bg-blue-600"}`}></div> */}
+  {/* <span className="ms-3 text-sm font-medium text-gray-900 dark:text-vgray-300">{isChecked ? "v3" : "v1"}</span> */}
+{/* </label> */}
+          
         </div>
         <div className="flex    lg:w-[20%] lg:justify-end justify-center   mt-2 lg:border-b border-gray-300 pb-2">
           <div className="mr-5">

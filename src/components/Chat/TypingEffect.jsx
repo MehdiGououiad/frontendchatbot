@@ -38,7 +38,6 @@ const TypingEffect = ({
           setDisplayedContent((prev) => prev + message.charAt(index));
           setIndex((prev) => prev + 1);
         }
-        console.log("index", index);
         handleScrollEvent(true); // Pass true to force scrolling to the bottom
       }, currentSpeed);
 

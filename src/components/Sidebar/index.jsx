@@ -365,10 +365,10 @@ const retrieveConversations = () => {
           </div>
         </div>
         <div className="mb-10"  >
-          <img src="logout.png" alt="" className="mx-auto hover:cursor-pointer	" onClick={()=>{
+          {/* <img src="logout.png" alt="" className="mx-auto hover:cursor-pointer	" onClick={()=>{
           localStorage.removeItem("isAuthenticated");
           navigate("/login")}
-          } />
+          } /> */}
           
         {
           deletePopUp && (
