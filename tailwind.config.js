@@ -6,15 +6,16 @@ export default {
   theme: {
     extend: {
       keyframes: {
-        slideInFromRight: {
-          "0%": { transform: "translateX(100%)", opacity: "0" },
-          "100%": { transform: "translateX(0)", opacity: "1" },
+        slideInFromBottom: {
+          "0%": { transform: "translateY(80vh)", opacity: "0" }, // Starting from the bottom of the viewport
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
       },
       animation: {
-        "slide-in-right": "slideInFromRight 1s ease-out",
+        "slide-in-bottom": "slideInFromBottom 2s ease-out",
       },
     },
   },
+  
   plugins: [],
 };

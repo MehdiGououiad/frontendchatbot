@@ -12,6 +12,13 @@ function Chat({ setLinks,isChecked ,id,showPopup ,setIsEditing}) {
   const [chat, setChat] = useState([]);
   const [lastmessageId, setLastmessageId] = useState(0);
 
+  // State to track thumbs-down clicks by message ID
+  const [thumbsDownClicked, setThumbsDownClicked] = useState({});
+
+  // Function to handle thumbs-down click
+  const handleThumbsDownClick = (messageId) => {
+    setThumbsDownClicked(prev => ({ ...prev, [messageId]: !prev[messageId] }));
+  };
 
 
 
@@ -86,7 +93,7 @@ const handleSend = async (predefined) => {
 
   const conversationId = getConversationIdFromUrl();
   const version = isChecked ? "2" : "1";
-  const apiUrl = `http://192.168.3.20:8080/api/questions/ask`;
+  const apiUrl = `http://localhost:8080/api/questions/ask`;
 
   try {
       const payload = {
@@ -133,7 +140,7 @@ const handleSendError = (error) => {
 const handleSubmit = async (id, newTitle) => {
   try {
     const response = await axios.put(
-      `http://192.168.3.20:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
+      `http://localhost:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
     );
     setIsEditing(true);
   } catch (error) {
@@ -160,7 +167,7 @@ const handleSubmit = async (id, newTitle) => {
 
     if (conversationId !== null) {
       // Make the API call with the extracted conversation ID
-      const apiUrl = `http://192.168.3.20:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
+      const apiUrl = `http://localhost:8080/api/conversations/messagesByConversationId?conversationId=${conversationId}`;
 
       axios
         .get(apiUrl)
@@ -174,7 +181,7 @@ const handleSubmit = async (id, newTitle) => {
         });
     } else {
       const apiUrl =
-        "http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId="+idUser;
+        "http://localhost:8080/api/conversations/conversationsByUserId?userId="+idUser;
 
       axios
         .get(apiUrl)
@@ -226,7 +233,7 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
   
   function handleNewConversation() {
     // This is where we'll add the code to create a new conversation
-    const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id="+idUser;
+    const apiUrl = "http://localhost:8080/api/conversations/create?user_id="+idUser;
 
     // Make the POST request using Axios
     axios
@@ -313,18 +320,12 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
           <img src="bot.svg" alt="" />
           <div className="">
             <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl">
-              Bonjour
-            </div>
+            <TypingEffect message="Bonjour, \n
+             Moi c'est <b>Rhym</b> , votre nouveau assistant RH, je suis là pour vous aider et répondre à vos questions. \n
+             Comment je peux vous aider aujourd'hui ?" speed={chat.length > 0 ? 0 : 10}  onContentChange={handleContentChange}
+             handleScrollEvent={handleScrollEvent} />            </div> 
             <br />
-            <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl mt-2">
-              Moi c'est <span className="font-bold"> Rhym</span>, votre nouveau
-              assistant RH, je suis là pour vous aider et répondre à vos
-              questions.
-            </div>
-            <br />
-            <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl mt-2">
-              Comment je peux vous aider aujourd'hui ?
-            </div>
+          
           </div>
         </div>
  
@@ -399,6 +400,8 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
             />
             )}            
                       </div>
+              <img onClick={() => handleThumbsDownClick(message.id)} src="thumbs-down.svg" className="w-4" alt="" />
+            {thumbsDownClicked[message.id] && <div>Hello</div>}
                     </div>
                   )}
                 </div>

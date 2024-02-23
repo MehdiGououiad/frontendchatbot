@@ -21,7 +21,7 @@ function AsideFiles({ links }) {
   });
 
   return (
-    <div className="w-[20%] hidden lg:block">
+    <div className="w-[20%] hidden lg:block" title="Vous retrouverez ici les liens et fichiers envoyés par le chatbot">
       <p className="font-semibold mt-5 ml-3">Fichiers et liens</p>
       <div className="relative  mt-3 ml-3 m-3">
         <input
@@ -31,9 +31,9 @@ function AsideFiles({ links }) {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <p className="text-sm text-zinc-600 font-medium  text-center mt-3">
+        {/* <p className="text-sm text-zinc-600 font-medium  text-center mt-3">
           Vous retrouverez ici les liens et fichiers envoyés par le chatbot
-        </p>
+        </p> */}
 
         <svg
           width="21"
@@ -57,7 +57,7 @@ function AsideFiles({ links }) {
                 href={link.value}
                 target="_blank"
                 rel="noreferrer"
-                className="flex justify-between mx-2 hover:bg-gray-100 mb-2 p-2 rounded-xl animate-slide-in-right" // Using the custom animation class
+                className="flex justify-between mx-2 hover:bg-gray-100 mb-2 p-2 rounded-xl animate-slide-in-bottom" // Using the custom animation class
                 key={index}
               >
                 <div className="flex">

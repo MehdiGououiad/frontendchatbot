@@ -85,12 +85,12 @@ const renderConversations = (conversations) => {
                   handleLinkClick(conversation.id);
                 }} className={`flex items-center justify-between text-sm h-8 transition-all font-medium rounded-md p-5 w-full`}>
                   <div>
-                    <img src="chat-icon.svg" className="w-5" alt="" />
+                    <img src="chat-icon.svg" className="w-[20px]" alt="" />
                   </div>
                   {/* Conversation Title */}
-                  <div className="text-sm truncate ">
-                    {conversation.title}
-                  </div>
+                  <div className="text-sm truncate" title={conversation.title}>
+  {conversation.title.length > 20 ? `${conversation.title.slice(0, 20)}...` : conversation.title}
+</div>
                   <div className="">
                     {isEditing ? (
                       ""
@@ -158,7 +158,7 @@ const renderConversations = (conversations) => {
   const handleSubmit = async (id) => {
     try {
       const response = await axios.put(
-        `http://192.168.3.20:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
+        `http://localhost:8080/api/conversations/updateTitle?conversationId=${id}&newTitle=${newTitle}`
       );
       // Update conversation title on success
       setIsEditing(false);
@@ -172,7 +172,7 @@ const renderConversations = (conversations) => {
 
   function handleNewConversation() {
     // This is where we'll add the code to create a new conversation
-    const apiUrl = "http://192.168.3.20:8080/api/conversations/create?user_id="+idUser;
+    const apiUrl = "http://localhost:8080/api/conversations/create?user_id="+idUser;
 
     // Make the POST request using Axios
     axios
@@ -228,7 +228,7 @@ function deleteConversation(id) {
 
   // Schedule the API call with a 3-second delay
   const timeoutId = setTimeout(() => {
-      const apiUrl = `http://192.168.3.20:8080/api/conversations/deleteByConversationId?conversationId=${id}&userId=${idUser}`;
+      const apiUrl = `http://localhost:8080/api/conversations/deleteByConversationId?conversationId=${id}&userId=${idUser}`;
       axios.delete(apiUrl)
           .then((response) => {
               // Update conversations with the response data
@@ -260,7 +260,7 @@ function deleteConversation(id) {
 const retrieveConversations = () => {
   setLoading(true); // Assuming you have a loading state
 
-  const apiUrl = `http://192.168.3.20:8080/api/conversations/conversationsByUserId?userId=${idUser}`;
+  const apiUrl = `http://localhost:8080/api/conversations/conversationsByUserId?userId=${idUser}`;
 
   axios.get(apiUrl)
       .then((response) => {
@@ -295,7 +295,7 @@ const retrieveConversations = () => {
            
           </div>
           <div className="w-full mt-10">
-            <div className="w-full px-3">
+            <div className="w-full px-3" title="Créer une nouvelle conversation">
               <button
                 onClick={handleNewConversation}
                 className="inline-flex items-center gap-1 w-full px-2.5 text-sm h-8 transition-all font-medium bg-zinc-100  rounded-md hover:bg-zinc-200 p-5"
@@ -326,7 +326,7 @@ const retrieveConversations = () => {
               ) : (
                 <div
                   className=""
-                  style={{ height: "460px", overflowY: "auto" }}
+                  style={{ height: "500px", overflowY: "auto" }}
                 >
                    {/* Today Conversations */}
     <div>
