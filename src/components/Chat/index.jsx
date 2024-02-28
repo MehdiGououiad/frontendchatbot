@@ -6,6 +6,8 @@ function Chat({ setLinks,isChecked ,id,showPopup ,setIsEditing}) {
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef(null);
+  const [isTyping, setIsTyping] = useState(false); // State to manage typing effect status
+
   
   const idUser=localStorage.getItem("id")
 
@@ -90,6 +92,8 @@ const handleSend = async (predefined) => {
       setInputValue(predefined);
   }
   setIsThinking(true); // Start thinking
+  setIsTyping(true); // Trigger the typing effect to start
+
 
   const conversationId = getConversationIdFromUrl();
   const version = isChecked ? "2" : "1";
@@ -103,8 +107,10 @@ const handleSend = async (predefined) => {
       };
 
       const response = await axios.post(apiUrl, payload);
-      setLastmessageId(response.data); // Assuming response.data has the ID
       getMessages();
+
+
+      setLastmessageId(response.data); // Assuming response.data has the ID
 
       // New logic to check conversation length and potentially update title
       const conversationLength = chat.length;
@@ -163,6 +169,7 @@ const handleSubmit = async (id, newTitle) => {
   }
 
   function getMessages() {
+    console.log("called");
     const conversationId = getConversationIdFromUrl();
 
     if (conversationId !== null) {
@@ -224,6 +231,7 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
         scrollRef.current.scrollHeight -
         scrollRef.current.scrollTop -
         scrollRef.current.offsetHeight;
+        console.log(distanceFromBottom);
       setShowScrollButton(distanceFromBottom > scrollThreshold);
     }
   }
@@ -313,7 +321,7 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
     <div className="lg:w-[80%] lg:border-r border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] ">
       <div
         ref={scrollRef}
-         onScroll={() => handleScrollEvent(false)}
+        //  onScroll={() => handleScrollEvent(false)}
         className="overflow-y-auto flex-grow  bg-[url('background.svg')] bg-center bg-auto bg-no-repeat"
       >
         <div className="flex gap-4 ml-2 mt-8">
@@ -322,8 +330,8 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
             <div className="text-black text-sm leading-5 inline-block bg-zinc-100 px-4 py-2 rounded-xl">
             <TypingEffect message="Bonjour, \n
              Moi c'est <b>Rhym</b> , votre nouveau assistant RH, je suis là pour vous aider et répondre à vos questions. \n
-             Comment je peux vous aider aujourd'hui ?" speed={chat.length > 0 ? 0 : 10}  onContentChange={handleContentChange}
-             handleScrollEvent={handleScrollEvent} />            </div> 
+             Comment je peux vous aider aujourd'hui ?" speed={chat.length > 0 ? 0 : 10}  onContentChange={handleContentChange} handleScrollEvent={handleScrollEvent}
+              />            </div> 
             <br />
           
           </div>
@@ -418,7 +426,7 @@ const handleScrollEvent = (forceScrollToBottom = false) => {
       </div>
       {showScrollButton && (
         <button
-          onClick={scrollToBottom}
+          onClick={()=>scrollToBottom()}
           style={{
             position: "fixed",
             top: "80%", // Center vertically

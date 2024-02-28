@@ -13,37 +13,33 @@ const TypingEffect = ({
   const contentRef = useRef(null); // New ref to access the content container
 
   useEffect(() => {
-    
+    // Preprocess the message to replace \n with <br> only once
+    const processedMessage = message.replace(/\\n/g, "<br>");
 
     if (speed === 0) {
-      setDisplayedContent(message.replace(/\n/g, "<br>")); // Ensure regex is correct for actual newlines
-      handleScrollEvent(true); // Pass true to force scrolling to the bottom
+      setDisplayedContent(processedMessage); // Use processedMessage with <br> for new lines
+      // handleScrollEvent(true); // Pass true to force scrolling to the bottom
       if (onContentChange) {
-        onContentChange(message);
+        onContentChange(processedMessage);
       }
-    } else if (index < message.length) {
-      if (message.charAt(index) === "<") {
+    } else if (index < processedMessage.length) {
+      if (processedMessage.charAt(index) === "<") {
         insideTag.current = true;
-      } else if (message.charAt(index) === ">") {
+      } else if (processedMessage.charAt(index) === ">") {
         insideTag.current = false;
       }
 
       const currentSpeed = insideTag.current ? tagSpeed : speed;
 
       const timer = setTimeout(() => {
-        if (message.charAt(index) === "\\" && message.charAt(index + 1) === "n") {
-          setDisplayedContent((prev) => prev + "<br>");
-          setIndex(index + 2);
-        } else {
-          setDisplayedContent((prev) => prev + message.charAt(index));
-          setIndex((prev) => prev + 1);
-        }
+        setDisplayedContent((prev) => prev + processedMessage.charAt(index));
+        setIndex((prev) => prev + 1);
         handleScrollEvent(true); // Pass true to force scrolling to the bottom
       }, currentSpeed);
 
       return () => clearTimeout(timer);
     }
-  }, [index, message, speed, tagSpeed]);
+  }, [index, message, speed, tagSpeed, onContentChange, handleScrollEvent]);
 
   return <div ref={contentRef} dangerouslySetInnerHTML={{ __html: displayedContent }} />;
 };
