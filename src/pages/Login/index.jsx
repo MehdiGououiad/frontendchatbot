@@ -15,7 +15,6 @@ function Login() {
       const response = await axios.post(`http://localhost:8080/api/users/login?username=${username}&password=${password}`);
       // Once the response is received, set items in localStorage
       const loginDate = new Date().toISOString();
-
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("username", username);
       localStorage.setItem("id", response.data.userId); // Assuming the response contains the user ID

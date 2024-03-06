@@ -4,11 +4,11 @@ function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleCl
   let user=localStorage.getItem('username');
   let role=""
   if(user=="mehdi"){
-    role="F57385"
+    role="f57385"
     user="Mehdi"
   }
   if(user=="achraf"){
-    role="F78690"
+    role="f78690"
     user="Achraf"
 
   }
@@ -75,7 +75,7 @@ function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleCl
         <div className="flex    lg:w-[20%] lg:justify-end justify-center   mt-2 lg:border-b border-gray-300 pb-2">
           <div className="mr-5">
             <h2 className="font-bold">{user}</h2>
-            <h2 className="text-zinc-600 leading-6">{role}</h2>
+            <h2 className="text-zinc-600 leading-6 italic">{role}</h2>
           </div>
           <img src="photo.svg" alt="" className="mr-8 mb-2" />
         </div>

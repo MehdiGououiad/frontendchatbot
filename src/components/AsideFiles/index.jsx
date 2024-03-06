@@ -26,14 +26,14 @@ function AsideFiles({ links }) {
       <div className="relative  mt-3 ml-3 m-3">
         <input
           type="text"
-          placeholder="Recherche"
+          placeholder="Rechercher"
           className="py-2 pr-10 pl-12 rounded-full border border-gray-300 focus:outline-none focus:ring focus:border-blue-500  w-full"
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        {/* <p className="text-sm text-zinc-600 font-medium  text-center mt-3">
+        <p className="text-sm text-zinc-600 font-medium  text-center  mt-48 italic" >
           Vous retrouverez ici les liens et fichiers envoyés par le chatbot
-        </p> */}
+        </p>
 
         <svg
           width="21"
