@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleClick }) {
+function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleClick,showAsideFiles }) {
   let user=localStorage.getItem('username');
   let role=""
   if(user=="mehdi"){
@@ -58,8 +58,9 @@ function Header({ isSidebarOpen, setIsSidebarOpen, toggleDark,isChecked,handleCl
           )
         }
       </button>
-      <div className="flex justify-center">
-        <div className="lg:flex items-center justify-between  lg:border-b border-r border-gray-300 w-[80%] hidden">
+      <div className={`${showAsideFiles ? 'justify-center':'justify-end'} flex`}>
+        <div className={`lg:flex items-center justify-between  lg:border-b ${showAsideFiles?'border-r':''} border-gray-300 w-[80%] `}>
+
           <h1 className="text-black text-xl leading-6 font-bold ml-8 ">
           Bienvenue sur Rhym, votre chatbot RH
           </h1>

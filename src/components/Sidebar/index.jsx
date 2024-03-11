@@ -392,7 +392,11 @@ const retrieveConversations = () => {
         {/* <div className="p-4 mb-6">
           <img src="settings.svg" alt="" className="mx-auto" />
         </div> */}
-      
+        {/* <div className="flex mb-6">
+        <p>Dark Mode</p>
+        <img src="toggle-dark.svg" alt="" />
+        <p>Light Mode</p>
+        </div> */}
       </div>
 
       <Outlet />

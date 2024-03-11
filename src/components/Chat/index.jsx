@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import TypingEffect from "./TypingEffect";
 
-function Chat({ setLinks, isChecked, id, showPopup, setIsEditing }) {
+function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles }) {
   // const [inputValue, setInputValue] = useState("");
   const inputRef = useRef();
 
@@ -352,7 +352,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing }) {
     getMessages();
   }, [id]);
   return (
-    <div className="lg:w-[80%] lg:border-r border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] ">
+    <div className={`${showAsideFiles ? 'lg:w-[80%]  lg:border-r pr-5':'lg:w-[95%] '} border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] `}>
       <div
         ref={scrollRef}
         //  onScroll={() => handleScrollEvent(false)}
@@ -445,7 +445,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing }) {
                                     src="bot.svg"
                                     alt=""
                                     className="ml-2 mr-4"
-                                  />!
+                                  />
                                   <div
                                     className={`inline-block text-sm leading-5 px-4 py-2 rounded-xl whitespace-pre-line mr-2 ${
                                       message.messageType === "Question"
@@ -533,6 +533,17 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing }) {
                                         >
                                           complexe
                                         </button>
+                                        {/* <button
+                                          onClick={() =>
+                                            reportMessage(
+                                              message.id,
+                                              "complexe"
+                                            )
+                                          }
+                                          className="px-8 py-2 text-sm leading-5  whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
+                                        >
+                                          autre ...
+                                        </button> */}
                                       </div>
                                     </div>
                                   )}

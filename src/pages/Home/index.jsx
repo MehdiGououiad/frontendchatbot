@@ -9,6 +9,7 @@ function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu,setIsEditing,setIdAc
    // Get the conversationId from the URL
    const { conversationId } = useParams();
    let navigate = useNavigate()
+   const [showAsideFiles, setShowAsideFiles] = useState(false);
 
    const [id, setId] = useState(conversationId);
    const isSessionExpired = () => {
@@ -70,11 +71,18 @@ function Home({ isSidebarOpen, setIsSidebarOpen, toggleMenu,setIsEditing,setIdAc
         handleClick={handleClick}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          showAsideFiles={showAsideFiles}
+
+
+
+
+
+
         />
       </div>
-      <div className="flex" onClick={() => setIsSidebarOpen(false)}>
-        <Chat links={links} setLinks={setLinks}  isChecked={isChecked} id={id} showPopup={showPopup} setIsEditing={setIsEditing} />
-        <AsideFiles links={links} />
+      <div className="flex " onClick={() => setIsSidebarOpen(false)}>
+        <Chat links={links} setLinks={setLinks}  isChecked={isChecked} id={id} showPopup={showPopup} setIsEditing={setIsEditing} showAsideFiles={showAsideFiles} />
+        <AsideFiles links={links}           showAsideFiles={showAsideFiles} setShowAsideFiles={setShowAsideFiles} />
       </div>
     </div>
   );
