@@ -12,14 +12,13 @@ function AppRouter() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
-
   const showPopup = (message) => {
     setPopupMessage(message);
     setPopupVisible(true);
 
     // Optional: Auto-hide popup after some time
     setTimeout(() => setPopupVisible(false), 3000); // hides after 3 seconds
-};
+  };
 
   const toggleMenu = (id) => {
     if (openMenuId === id) {
@@ -30,31 +29,27 @@ function AppRouter() {
   };
   const [isEditing, setIsEditing] = useState(false);
 
-
   return (
     <Router>
       <Routes>
         <Route
           element={
             <Sidebar
-            showPopup={showPopup}
+              showPopup={showPopup}
               isSidebarOpen={isSidebarOpen}
               toggleMenu={toggleMenu}
               setIsEditing={setIsEditing}
               isEditing={isEditing}
               idActive={idActive}
-
               openMenuId={openMenuId}
             />
           }
         >
-          
           <Route
             path="/:conversationId?"
             element={
               <Home
                 showPopup={showPopup}
-        
                 toggleMenu={toggleMenu}
                 setIsEditing={setIsEditing}
                 setIdActive={setIdActive}
@@ -64,18 +59,11 @@ function AppRouter() {
               />
             }
           />
-                  </Route>
+        </Route>
 
-            <Route
-            path="/login"
-            element={
-              <Login />
-            }
-          />
-          
+        <Route path="/login" element={<Login />} />
       </Routes>
       <Popup message={popupMessage} visible={popupVisible} />
-
     </Router>
   );
 }

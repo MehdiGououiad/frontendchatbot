@@ -1,12 +1,22 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import TypingEffect from "./TypingEffect";
+import CommentModal from "./CommentModal";
 
-function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles }) {
+function Chat({
+  setLinks,
+  isChecked,
+  id,
+  showPopup,
+  setIsEditing,
+  showAsideFiles,
+}) {
   // const [inputValue, setInputValue] = useState("");
   const inputRef = useRef();
 
   const [isThinking, setIsThinking] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const scrollRef = useRef(null);
   const [playTyping, setPlayTyping] = useState(undefined);
   const [showFeedbackReceived, setShowFeedbackReceived] = useState(null);
@@ -352,11 +362,15 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
     getMessages();
   }, [id]);
   return (
-    <div className={`${showAsideFiles ? 'lg:w-[80%]  lg:border-r pr-5':'lg:w-[95%] '} border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] `}>
+    <div
+      className={`${
+        showAsideFiles ? "lg:w-[80%]  lg:border-r " : "lg:w-[95%] "
+      } border-gray-300 flex flex-col justify-between w-full  lg:h-[88vh] h-[75vh] `}
+    >
       <div
         ref={scrollRef}
         //  onScroll={() => handleScrollEvent(false)}
-        className="overflow-y-auto flex-grow  bg-[url('background.svg')] bg-center bg-auto bg-no-repeat"
+        className="overflow-y-auto  flex-grow  bg-[url('background.svg')] bg-center bg-auto bg-no-repeat"
       >
         <div className="flex gap-4 ml-2 mt-8">
           <img src="bot.svg" alt="" />
@@ -366,7 +380,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
                 message="Bonjour, \n
              Moi c'est <b>Rhym</b> , votre nouveau assistant RH, je suis là pour vous aider et répondre à vos questions. \n
              Comment je peux vous aider aujourd'hui ?"
-                speed={chat.length > 0 ? 0 : 10}
+                speed={0}
                 onContentChange={handleContentChange}
                 handleScrollEvent={handleScrollEvent}
                 playTyping={true}
@@ -377,7 +391,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
         </div>
 
         {chat && chat.length > 0 ? (
-          <div className="flex flex-col-reverse">
+          <div className="flex flex-col-reverse mr-4">
             {Object.entries(categorizedChat).map(
               ([category, messages]) =>
                 messages.length > 0 && (
@@ -393,7 +407,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
                           className={`flex items-end my-1 ${
                             message.messageType === "Question"
                               ? "justify-end"
-                              : "justify-start"
+                              : ""
                           }`}
                         >
                           {message.messageType === "Responsemultiple" ? (
@@ -439,7 +453,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
                             </div>
                           ) : (
                             <>
-                              <div className="">
+                              <div className="w-full mx-auto">
                                 <div className="flex">
                                   <img
                                     src="bot.svg"
@@ -495,10 +509,20 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
 
                                 {thumbsDownClicked[message.id] &&
                                   showFeedbackReceived == null && (
-                                    <div className="flex flex-col justify-center items-center ">
-                                      <p className=" mt-3 italic">
-                                        Je trouve que la réponse est :{" "}
-                                      </p>
+                                    <div className="flex flex-col justify-center items-center mx-auto">
+                                      <div className=" flex justify-between items-center">
+                                        <p className="italic">
+                                          Je trouve que la réponse est :
+                                        </p>
+                                        <button
+                                          onClick={() =>
+                                            handleThumbsDownClick(message.id)
+                                          }
+                                          className="text-2xl p-2 ml-[200px]"
+                                        >
+                                          &times; {/* This is the X button */}
+                                        </button>
+                                      </div>
                                       <div className="flex mt-3 gap-3">
                                         <button
                                           onClick={() =>
@@ -507,7 +531,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
                                               "incorrect"
                                             )
                                           }
-                                          className="px-8 py-2 text-sm leading-5  whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
+                                          className="px-8 py-2 text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
                                         >
                                           incorrecte
                                         </button>
@@ -518,7 +542,7 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
                                               "incomplète"
                                             )
                                           }
-                                          className="px-8 py-2 text-sm leading-5  whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
+                                          className="px-8 py-2 text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
                                         >
                                           incomplète
                                         </button>
@@ -529,21 +553,22 @@ function Chat({ setLinks, isChecked, id, showPopup, setIsEditing,showAsideFiles 
                                               "complexe"
                                             )
                                           }
-                                          className="px-8 py-2 text-sm leading-5  whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
+                                          className="px-8 py-2 text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
                                         >
                                           complexe
                                         </button>
-                                        {/* <button
-                                          onClick={() =>
-                                            reportMessage(
-                                              message.id,
-                                              "complexe"
-                                            )
-                                          }
-                                          className="px-8 py-2 text-sm leading-5  whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
+                                        <button
+                                          className="px-8 py-2 text-sm leading-5 whitespace-nowrap justify-center items-stretch bg-[#F1F1F1] rounded-xl hover:bg-red-700 hover:text-white md:px-5 md:py-2"
+                                          onClick={() => setIsModalOpen(true)}
                                         >
-                                          autre ...
-                                        </button> */}
+                                          Autre ...
+                                        </button>
+                                        <CommentModal
+                                          isOpen={isModalOpen}
+                                          onClose={() => setIsModalOpen(false)}
+                                          reportMessage={reportMessage}
+                                          messageId={message.id}
+                                        />
                                       </div>
                                     </div>
                                   )}

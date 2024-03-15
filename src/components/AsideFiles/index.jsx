@@ -40,7 +40,7 @@ function AsideFiles({ links, showAsideFiles, setShowAsideFiles }) {
               value={searchTerm}
               onChange={handleSearchChange}
             />
-            <p className="text-sm text-zinc-600 font-medium  text-center  mt-36 italic">
+            <p className="text-sm text-zinc-600 font-medium  text-center mt-6 italic">
               Vous retrouverez ici les liens et fichiers envoyés par le chatbot
             </p>
 

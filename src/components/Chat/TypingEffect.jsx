@@ -7,7 +7,7 @@ const TypingEffect = ({
   onContentChange,
   playTyping,
   handleScrollEvent,
-  setPlayTyping
+  setPlayTyping,
 }) => {
   console.log(playTyping, "playTyping");
   const [displayedContent, setDisplayedContent] = useState("");
@@ -25,7 +25,7 @@ const TypingEffect = ({
       if (onContentChange) {
         onContentChange(processedMessage);
       }
-       // When the typing effect is skipped due to speed being 0, also call setPlayTyping
+      // When the typing effect is skipped due to speed being 0, also call setPlayTyping
       //  if (setPlayTyping) {
       //   setPlayTyping(undefined);
       // }
@@ -35,26 +35,29 @@ const TypingEffect = ({
       } else if (processedMessage.charAt(index) === ">") {
         insideTag.current = false;
       }
-      
-     
+
       const currentSpeed = insideTag.current ? tagSpeed : speed;
 
       const timer = setTimeout(() => {
         setDisplayedContent((prev) => prev + processedMessage.charAt(index));
         setIndex((prev) => prev + 1);
         handleScrollEvent(true); // Pass true to force scrolling to the bottom
-         // Check if typing has finished and call setPlayTyping with undefined
-         if (index + 1 === processedMessage.length && setPlayTyping) {
+        // Check if typing has finished and call setPlayTyping with undefined
+        if (index + 1 === processedMessage.length && setPlayTyping) {
           setPlayTyping(undefined);
         }
       }, currentSpeed);
 
-      return () =>  clearTimeout(timer);
+      return () => clearTimeout(timer);
     }
-    
   }, [index, message, speed, tagSpeed, onContentChange, handleScrollEvent]);
 
-  return <div ref={contentRef} dangerouslySetInnerHTML={{ __html: displayedContent }} />;
+  return (
+    <div
+      ref={contentRef}
+      dangerouslySetInnerHTML={{ __html: displayedContent }}
+    />
+  );
 };
 
 export default TypingEffect;
