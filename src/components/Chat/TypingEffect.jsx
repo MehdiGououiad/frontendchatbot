@@ -9,26 +9,29 @@ const TypingEffect = ({
   handleScrollEvent,
   setPlayTyping,
 }) => {
-  console.log(playTyping, "playTyping");
   const [displayedContent, setDisplayedContent] = useState("");
   const [index, setIndex] = useState(0);
   const insideTag = useRef(false);
-  const contentRef = useRef(null); // New ref to access the content container
+  const contentRef = useRef(null);
+
+  const convertUrlsToLinks = (text) => {
+    const urlRegex = /http[s]?:\/\/[^\s]+/g;
+    return text.replace(urlRegex, (url) => {
+      if (url.endsWith(".")) {
+        url = url.slice(0, -1);
+      }
+      return `<a href="${url}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    });
+  };
 
   useEffect(() => {
-    // Preprocess the message to replace \n with <br> only once
-    const processedMessage = message.replace(/\\n/g, "<br>");
+    const processedMessage = convertUrlsToLinks(message.replace(/\\n/g, "<br>"));
 
     if (speed === 0) {
-      setDisplayedContent(processedMessage); // Use processedMessage with <br> for new lines
-      // handleScrollEvent(true); // Pass true to force scrolling to the bottom
+      setDisplayedContent(processedMessage);
       if (onContentChange) {
         onContentChange(processedMessage);
       }
-      // When the typing effect is skipped due to speed being 0, also call setPlayTyping
-      //  if (setPlayTyping) {
-      //   setPlayTyping(undefined);
-      // }
     } else if (index < processedMessage.length && playTyping) {
       if (processedMessage.charAt(index) === "<") {
         insideTag.current = true;
@@ -41,8 +44,7 @@ const TypingEffect = ({
       const timer = setTimeout(() => {
         setDisplayedContent((prev) => prev + processedMessage.charAt(index));
         setIndex((prev) => prev + 1);
-        handleScrollEvent(true); // Pass true to force scrolling to the bottom
-        // Check if typing has finished and call setPlayTyping with undefined
+        handleScrollEvent(true);
         if (index + 1 === processedMessage.length && setPlayTyping) {
           setPlayTyping(undefined);
         }
